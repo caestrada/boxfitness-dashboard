@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { LogOut } from "lucide-react"
 
 import { signOutAction } from "@/app/auth/actions"
@@ -30,7 +31,7 @@ export function NavUser({ user }: NavUserProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="group flex min-w-0 items-center gap-3 rounded-full border border-border/70 bg-white/78 px-2.5 py-2 pr-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] transition-all hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20"
+          className="surface-control group flex min-w-0 items-center gap-3 rounded-full px-2.5 py-2 pr-4 text-left transition-all hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20"
           type="button"
         >
           <Avatar className="size-10 border border-primary/15 bg-primary/10 shadow-[0_0_0_1px_rgba(255,107,44,0.08)]">
@@ -56,6 +57,12 @@ export function NavUser({ user }: NavUserProps) {
             {user.email ?? "Signed in"}
           </p>
         </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/profile">Profile</Link>
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 

@@ -73,7 +73,7 @@ export default function CreateGymPage() {
             className="dot-grid absolute inset-0 opacity-45 [mask-image:radial-gradient(circle_at_center,white,transparent_80%)]"
           />
 
-          <div className="relative m-5 rounded-[1.75rem] border border-border/70 bg-white/88 p-6 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.22)]">
+          <div className="surface-strong relative m-5 rounded-[1.75rem] p-6">
             <p className="section-label">Workspace Preview</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-balance">
               New location packet
@@ -87,7 +87,7 @@ export default function CreateGymPage() {
               {workspacePreviewRows.map(({ label, value }) => (
                 <div
                   key={label}
-                  className="flex items-start justify-between gap-4 rounded-[1.2rem] border border-border/70 bg-white/82 px-4 py-3"
+                  className="surface-soft flex items-start justify-between gap-4 rounded-[1.2rem] px-4 py-3"
                 >
                   <p className="text-sm text-muted-foreground">{label}</p>
                   <p className="max-w-[14rem] text-right text-sm font-medium text-foreground">

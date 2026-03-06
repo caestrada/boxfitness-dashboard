@@ -117,7 +117,7 @@ export default async function DashboardPage({
         <div className="app-panel relative overflow-hidden p-8 md:p-10">
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white via-white/60 to-transparent"
+            className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white via-white/60 to-transparent dark:from-white/6 dark:via-white/0"
           />
           <div
             aria-hidden="true"
@@ -177,7 +177,7 @@ export default async function DashboardPage({
             className="dot-grid absolute inset-0 opacity-45 [mask-image:radial-gradient(circle_at_center,white,transparent_78%)]"
           />
 
-          <div className="relative m-5 rounded-[1.75rem] border border-border/70 bg-white/88 p-6 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.22)]">
+          <div className="surface-strong relative m-5 rounded-[1.75rem] p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="section-label">Workspace Brief</p>
@@ -200,7 +200,7 @@ export default async function DashboardPage({
               {moduleRows.map(({ title, status }) => (
                 <div
                   key={title}
-                  className="flex items-center justify-between rounded-[1.2rem] border border-border/70 bg-white/82 px-4 py-3"
+                  className="surface-soft flex items-center justify-between rounded-[1.2rem] px-4 py-3"
                 >
                   <p className="text-sm font-medium text-foreground">{title}</p>
                   <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -210,7 +210,7 @@ export default async function DashboardPage({
               ))}
             </div>
 
-            <div className="mt-6 rounded-[1.5rem] border border-border/70 bg-secondary/55 p-5">
+            <div className="surface-soft mt-6 rounded-[1.5rem] p-5">
               <p className="section-label">Current Posture</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
@@ -232,7 +232,7 @@ export default async function DashboardPage({
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <Card className="border-border/70 bg-white/84">
+        <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Recommended next slices</CardTitle>
             <CardDescription className="leading-7">
@@ -252,7 +252,7 @@ export default async function DashboardPage({
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-white/84">
+        <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Operating principles</CardTitle>
             <CardDescription className="leading-7">

@@ -208,7 +208,7 @@ function SidebarTrigger({
       variant="ghost"
       size="icon-lg"
       className={cn(
-        "rounded-full border border-border/70 bg-white/78 text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] hover:bg-white hover:text-foreground",
+        "surface-control rounded-full text-muted-foreground hover:text-foreground",
         className
       )}
       onClick={(event) => {
@@ -343,8 +343,9 @@ const sidebarMenuButtonVariants = cva(
       },
       isActive: {
         true:
-          "border border-sidebar-border/70 bg-white/88 text-foreground shadow-[0_16px_40px_-28px_rgba(15,23,42,0.3)]",
-        false: "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          "surface-control text-foreground shadow-[0_18px_44px_-30px_rgba(15,23,42,0.26)] dark:shadow-[0_24px_56px_-34px_rgba(0,0,0,0.62)]",
+        false:
+          "text-sidebar-foreground/72 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground",
       },
     },
     defaultVariants: {
@@ -382,7 +383,7 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentProps<"span">)
     <span
       data-slot="sidebar-menu-badge"
       className={cn(
-        "ml-auto rounded-full border border-sidebar-border/70 bg-white/82 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground",
+        "surface-control ml-auto rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground",
         className
       )}
       {...props}

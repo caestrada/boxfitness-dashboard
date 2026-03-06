@@ -44,7 +44,7 @@ export function CreateGymForm() {
   const previewSlug = generatedSlug || FALLBACK_SLUG
 
   return (
-    <Card className="border-border/70 bg-white/84">
+    <Card>
       <CardHeader className="space-y-3">
         <CardTitle className="text-[1.75rem]">Create a new gym</CardTitle>
         <CardDescription className="max-w-xl leading-7">

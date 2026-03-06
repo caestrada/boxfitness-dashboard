@@ -8,6 +8,7 @@ import {
   CalendarDays,
   CreditCard,
   LayoutDashboard,
+  UserRound,
   Users,
 } from "lucide-react"
 
@@ -44,6 +45,12 @@ const primaryItems = [
     href: "/dashboard/gyms/new",
     icon: Building2,
     matches: ["/dashboard/gyms"],
+  },
+  {
+    title: "Profile",
+    href: "/dashboard/profile",
+    icon: UserRound,
+    matches: ["/dashboard/profile"],
   },
 ] as const
 
@@ -121,10 +128,8 @@ export function AppSidebar({ gyms }: AppSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="rounded-[1.6rem] border border-sidebar-border/70 bg-white/78 p-4">
-          <p className="section-label text-primary/75">
-            Rebuild
-          </p>
+        <div className="surface-elevated rounded-[1.6rem] p-4">
+          <p className="section-label text-primary/75">Rebuild</p>
           <p className="mt-3 text-sm font-semibold text-foreground">
             {gyms.length > 0
               ? `${gyms.length} gym workspace${gyms.length > 1 ? "s" : ""} connected`

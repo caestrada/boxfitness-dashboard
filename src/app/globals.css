@@ -80,36 +80,56 @@
   --sidebar-accent-foreground: hsl(222 18% 14%);
   --sidebar-border: hsl(220 16% 85%);
   --sidebar-ring: hsl(222 18% 12%);
+  --surface-frame: hsl(0 0% 100% / 72%);
+  --surface-panel: hsl(0 0% 100% / 84%);
+  --surface-panel-strong: hsl(0 0% 100% / 90%);
+  --surface-subpanel: hsl(0 0% 100% / 74%);
+  --surface-control: hsl(0 0% 100% / 80%);
+  --surface-control-hover: hsl(0 0% 100% / 96%);
+  --surface-soft: hsl(220 20% 94% / 78%);
+  --surface-highlight: rgba(255, 255, 255, 0.76);
 }
 
 .dark {
-  --background: hsl(228 16% 8%);
-  --foreground: hsl(210 20% 98%);
-  --card: hsl(228 16% 11% / 92%);
-  --card-foreground: hsl(210 20% 98%);
-  --popover: hsl(228 16% 10%);
-  --popover-foreground: hsl(210 20% 98%);
-  --secondary: hsl(225 10% 18%);
-  --secondary-foreground: hsl(210 20% 98%);
-  --muted: hsl(225 11% 16%);
-  --muted-foreground: hsl(217 12% 68%);
-  --accent: hsl(225 13% 22%);
-  --accent-foreground: hsl(210 20% 98%);
-  --border: hsl(220 13% 23%);
-  --input: hsl(225 12% 18%);
+  --background: hsl(228 18% 7%);
+  --foreground: hsl(210 24% 96%);
+  --card: hsl(228 18% 11% / 90%);
+  --card-foreground: hsl(210 24% 96%);
+  --popover: hsl(228 20% 10% / 96%);
+  --popover-foreground: hsl(210 24% 96%);
+  --secondary: hsl(226 16% 18%);
+  --secondary-foreground: hsl(210 24% 96%);
+  --muted: hsl(226 16% 15%);
+  --muted-foreground: hsl(220 12% 72%);
+  --accent: hsl(226 16% 20%);
+  --accent-foreground: hsl(210 24% 96%);
+  --border: hsl(225 17% 22%);
+  --input: hsl(225 16% 17%);
   --ring: hsl(18 100% 55%);
-  --sidebar: hsl(228 17% 10%);
-  --sidebar-foreground: hsl(210 20% 98%);
-  --sidebar-accent: hsl(225 13% 22%);
-  --sidebar-accent-foreground: hsl(210 20% 98%);
-  --sidebar-border: hsl(220 13% 23%);
+  --sidebar: hsl(228 20% 9% / 92%);
+  --sidebar-foreground: hsl(210 24% 95%);
+  --sidebar-accent: hsl(226 16% 18%);
+  --sidebar-accent-foreground: hsl(210 24% 96%);
+  --sidebar-border: hsl(225 17% 21%);
   --sidebar-ring: hsl(18 100% 55%);
+  --surface-frame: hsl(228 20% 9% / 78%);
+  --surface-panel: hsl(228 17% 11% / 90%);
+  --surface-panel-strong: hsl(228 18% 12% / 94%);
+  --surface-subpanel: hsl(226 15% 15% / 82%);
+  --surface-control: hsl(228 16% 13% / 88%);
+  --surface-control-hover: hsl(228 16% 16% / 95%);
+  --surface-soft: hsl(226 14% 17% / 78%);
+  --surface-highlight: rgba(255, 255, 255, 0.05);
 }
 
 @layer base {
   html {
     @apply bg-background text-foreground;
     color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   * {
@@ -138,6 +158,22 @@
     z-index: -1;
   }
 
+  .dark body {
+    background-image:
+      radial-gradient(circle at 14% 16%, hsl(18 100% 55% / 0.18), transparent 20%),
+      radial-gradient(circle at 86% 14%, hsl(196 100% 56% / 0.12), transparent 22%),
+      radial-gradient(circle at 52% 38%, hsl(226 20% 18% / 0.78), transparent 32%),
+      linear-gradient(180deg, hsl(228 22% 12%), hsl(228 18% 7%));
+  }
+
+  .dark body::before {
+    background-image:
+      radial-gradient(circle at 22% 24%, hsl(18 100% 55% / 0.06), transparent 18%),
+      radial-gradient(circle at 78% 22%, hsl(196 100% 56% / 0.06), transparent 18%),
+      radial-gradient(circle at 58% 76%, hsl(225 18% 18% / 0.55), transparent 20%);
+    opacity: 1;
+  }
+
   ::selection {
     background: hsl(18 100% 55% / 0.18);
     color: var(--foreground);
@@ -146,27 +182,114 @@
 
 @layer utilities {
   .app-frame {
-    @apply rounded-[2.25rem] border border-border/70 bg-white/72 backdrop-blur-2xl;
+    @apply rounded-[2.25rem] border border-border/70 backdrop-blur-2xl;
+    background: var(--surface-frame);
     box-shadow:
       0 32px 80px -48px rgba(15, 23, 42, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      inset 0 1px 0 var(--surface-highlight);
   }
 
   .app-panel {
-    @apply rounded-[2rem] border border-border/70 bg-white/82 backdrop-blur-xl;
+    @apply rounded-[2rem] border border-border/70 backdrop-blur-xl;
+    background: var(--surface-panel);
     box-shadow:
       0 24px 60px -40px rgba(15, 23, 42, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.75);
+      inset 0 1px 0 var(--surface-highlight);
   }
 
   .app-subpanel {
-    @apply rounded-[1.5rem] border border-border/70 bg-white/74;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    @apply rounded-[1.5rem] border border-border/70;
+    background: var(--surface-subpanel);
+    box-shadow: inset 0 1px 0 var(--surface-highlight);
+  }
+
+  .surface-elevated {
+    @apply border border-border/70 backdrop-blur-xl;
+    background: var(--surface-panel-strong);
+    box-shadow:
+      0 20px 60px -40px rgba(15, 23, 42, 0.22),
+      inset 0 1px 0 var(--surface-highlight);
+  }
+
+  .surface-control {
+    @apply border border-border/70;
+    background: var(--surface-control);
+    box-shadow: inset 0 1px 0 var(--surface-highlight);
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      color 160ms ease;
+  }
+
+  .surface-control:hover {
+    background: var(--surface-control-hover);
+  }
+
+  .surface-soft {
+    @apply border border-border/70;
+    background: var(--surface-soft);
+    box-shadow: inset 0 1px 0 var(--surface-highlight);
+  }
+
+  .surface-strong {
+    @apply border border-border/70 text-foreground backdrop-blur-xl;
+    background-image: linear-gradient(
+      180deg,
+      hsl(0 0% 100% / 0.96),
+      hsl(220 20% 94% / 0.92)
+    );
+    box-shadow:
+      0 24px 60px -40px rgba(15, 23, 42, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.82);
   }
 
   .dot-grid {
     background-image: radial-gradient(circle, hsl(220 12% 82%) 1px, transparent 1.2px);
     background-size: 16px 16px;
+  }
+
+  .dark .app-frame {
+    box-shadow:
+      0 36px 90px -52px rgba(0, 0, 0, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .app-panel {
+    box-shadow:
+      0 28px 80px -52px rgba(0, 0, 0, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .app-subpanel {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .dark .surface-elevated {
+    box-shadow:
+      0 28px 80px -48px rgba(0, 0, 0, 0.68),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .surface-control {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 12px 32px -24px rgba(0, 0, 0, 0.52);
+  }
+
+  .dark .surface-strong {
+    background-image: linear-gradient(
+      180deg,
+      hsl(228 16% 15% / 0.96),
+      hsl(228 20% 8% / 0.98)
+    );
+    box-shadow:
+      0 28px 80px -48px rgba(0, 0, 0, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .dot-grid {
+    background-image: radial-gradient(circle, hsl(220 12% 25%) 1px, transparent 1.2px);
   }
 
   .section-label {

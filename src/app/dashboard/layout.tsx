@@ -69,10 +69,10 @@ export default async function DashboardLayout({
           />
           <div
             aria-hidden="true"
-            className="absolute right-10 top-10 h-36 w-36 rounded-full bg-slate-300/35 blur-3xl"
+            className="absolute right-10 top-10 h-36 w-36 rounded-full bg-slate-300/35 blur-3xl dark:bg-sky-400/10"
           />
 
-          <header className="sticky top-0 z-20 border-b border-border/70 bg-white/70 backdrop-blur-xl">
+          <header className="sticky top-0 z-20 border-b border-border/70 bg-white/64 backdrop-blur-xl dark:bg-sidebar/72">
             <div className="flex min-h-20 flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6">
               <div className="flex min-w-0 items-center gap-3 md:gap-4">
                 <SidebarTrigger />
