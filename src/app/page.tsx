@@ -100,7 +100,7 @@ export default async function Home() {
         <div className="app-frame relative overflow-hidden px-6 py-16 md:px-12 md:py-20">
           <div
             aria-hidden="true"
-            className="absolute -left-10 top-20 hidden w-52 rotate-[-8deg] rounded-[2rem] border border-border/70 bg-white/84 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.28)] lg:block"
+            className="absolute -left-10 top-20 hidden w-52 rotate-[-8deg] rounded-[2rem] border border-border/70 bg-white/84 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.28)] dark:bg-card/92 dark:shadow-[0_28px_80px_-48px_rgba(0,0,0,0.72)] lg:block"
           >
             <p className="section-label">Protected Shell</p>
             <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-foreground">
@@ -110,7 +110,7 @@ export default async function Home() {
 
           <div
             aria-hidden="true"
-            className="absolute -right-10 top-24 hidden w-56 rotate-[7deg] rounded-[2rem] border border-border/70 bg-white/84 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.28)] lg:block"
+            className="absolute -right-10 top-24 hidden w-56 rotate-[7deg] rounded-[2rem] border border-border/70 bg-white/84 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.28)] dark:bg-card/92 dark:shadow-[0_28px_80px_-48px_rgba(0,0,0,0.72)] lg:block"
           >
             <p className="section-label">Visual Direction</p>
             <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-foreground">
@@ -162,7 +162,7 @@ export default async function Home() {
       <section className="mx-auto grid max-w-6xl gap-6 px-6 md:px-10 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="grid gap-4">
           {foundationCards.map(({ title, description, icon: Icon }) => (
-            <Card key={title} className="border-border/70 bg-white/84">
+            <Card key={title} className="border-border/70 bg-white/84 dark:bg-card/92">
               <CardHeader className="space-y-4">
                 <div className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Icon className="size-5" />
@@ -176,7 +176,7 @@ export default async function Home() {
           ))}
         </div>
 
-        <Card className="relative overflow-hidden border-border/70 bg-white/84">
+        <Card className="relative overflow-hidden border-border/70 bg-white/84 dark:bg-card/92">
           <div
             aria-hidden="true"
             className="dot-grid absolute inset-0 opacity-45 [mask-image:linear-gradient(180deg,white,transparent_85%)]"
@@ -218,7 +218,7 @@ export default async function Home() {
         {!hasSupabaseEnv() ? (
           <SetupPanel />
         ) : (
-          <Card className="border-border/70 bg-white/84">
+          <Card className="border-border/70 bg-white/84 dark:bg-card/92">
             <CardHeader>
               <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Sparkles className="size-5" />

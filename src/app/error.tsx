@@ -18,7 +18,7 @@ export default function GlobalError({
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-16">
-      <div className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-card/80 p-8 text-center shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <div className="w-full max-w-xl rounded-[2rem] border border-border/70 bg-card/80 p-8 text-center shadow-[0_24px_80px_-40px_rgba(15,23,42,0.24)] backdrop-blur-xl dark:shadow-[0_28px_80px_-44px_rgba(0,0,0,0.72)]">
         <p className="font-mono text-xs uppercase tracking-[0.28em] text-primary/80">
           Application error
         </p>

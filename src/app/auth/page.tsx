@@ -72,7 +72,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
       <div
         aria-hidden="true"
-        className="absolute left-[5%] top-28 hidden w-64 rounded-[2rem] border border-border/70 bg-white/76 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.3)] xl:block"
+        className="absolute left-[5%] top-28 hidden w-64 rounded-[2rem] border border-border/70 bg-white/76 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.3)] dark:bg-card/92 dark:shadow-[0_28px_80px_-48px_rgba(0,0,0,0.72)] xl:block"
       >
         <p className="section-label">Session Boundary</p>
         <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-foreground">
@@ -85,7 +85,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
 
       <div
         aria-hidden="true"
-        className="absolute right-[6%] top-36 hidden w-72 rounded-[2rem] border border-border/70 bg-white/76 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.3)] xl:block"
+        className="absolute right-[6%] top-36 hidden w-72 rounded-[2rem] border border-border/70 bg-white/76 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.3)] dark:bg-card/92 dark:shadow-[0_28px_80px_-48px_rgba(0,0,0,0.72)] xl:block"
       >
         <p className="section-label">Cloud Target</p>
         <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-foreground">
@@ -99,7 +99,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
 
       <Link
         href="/"
-        className="absolute left-6 top-6 inline-flex items-center gap-3 rounded-full border border-border/70 bg-white/78 px-4 py-2 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]"
+        className="absolute left-6 top-6 inline-flex items-center gap-3 rounded-full border border-border/70 bg-white/78 px-4 py-2 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] dark:bg-card/90"
       >
         <span className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <Dumbbell className="size-4" />
@@ -123,7 +123,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </div>
 
         {message ? (
-          <Card className="mx-auto mt-8 max-w-2xl border-primary/15 bg-primary/8">
+          <Card className="mx-auto mt-8 max-w-2xl border-primary/15 bg-primary/8 dark:bg-primary/10">
             <CardHeader>
               <CardDescription className="text-sm leading-7 text-primary">
                 {message}
@@ -157,7 +157,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                 title="Create account"
               />
 
-              <Card className="border-border/70 bg-white/78">
+              <Card className="border-border/70 bg-white/78 dark:bg-card/92">
                 <CardHeader>
                   <CardTitle className="text-2xl">Why this surface changed</CardTitle>
                   <CardDescription className="leading-7">

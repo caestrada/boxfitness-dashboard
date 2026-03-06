@@ -51,5 +51,5 @@
 - shadcn/ui (New York style) with Zinc base color
 - Supabase (SSR auth via `@supabase/ssr`)
 - TanStack React Query, Zod (`zod/v3` for form schemas), Sonner, date-fns, lucide-react
-- Dark-first theme — `:root` IS the dark theme (no `.dark` class)
+- Theme system supports both light and dark modes
 - Primary color: `hsl(18 100% 55%)` / `#FF6B2C`

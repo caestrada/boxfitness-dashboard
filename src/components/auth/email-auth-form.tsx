@@ -41,7 +41,7 @@ export function EmailAuthForm({
   const [state, formAction] = useActionState(action, initialAuthActionState)
 
   return (
-    <Card className="border-border/70 bg-white/84">
+    <Card className="border-border/70 bg-white/84 dark:bg-card/92">
       <CardHeader className="space-y-3">
         <CardTitle className="text-[1.75rem]">{title}</CardTitle>
         <CardDescription className="max-w-lg leading-7">{description}</CardDescription>

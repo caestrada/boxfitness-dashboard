@@ -18,7 +18,7 @@ const setupSteps = [
 
 export function SetupPanel() {
   return (
-    <Card className="border-primary/15 bg-white/82">
+    <Card className="border-primary/15 bg-white/82 dark:bg-card/92">
       <CardHeader className="space-y-5">
         <div className="flex size-14 items-center justify-center rounded-[1.6rem] bg-primary/12 text-primary">
           <Cloud className="size-6" />
@@ -44,7 +44,7 @@ export function SetupPanel() {
           ))}
         </ol>
 
-        <div className="rounded-[1.6rem] border border-border/70 bg-white/74 p-5 font-mono text-sm text-slate-600">
+        <div className="rounded-[1.6rem] border border-border/70 bg-white/74 p-5 font-mono text-sm text-slate-600 dark:bg-muted/35 dark:text-zinc-300">
           <div className="mb-4 flex items-center gap-2 text-primary">
             <KeyRound className="size-4" />
             Required environment variables

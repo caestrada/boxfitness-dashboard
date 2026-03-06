@@ -61,7 +61,7 @@ Open `http://localhost:3000`.
 - First-pass Supabase schema for `profiles`, `organizations`, and
   `organization_members` with RLS
 - TanStack React Query provider and Sonner toaster wiring
-- Light-first theme with a softer grayscale shell and orange accent moments
+- Light-first default theme with an optional dark mode toggle in profile settings
 - Organization-aware dashboard shell with a shadcn sidebar, gym switcher, and
   user avatar menu
 - Starter routes:
@@ -70,6 +70,7 @@ Open `http://localhost:3000`.
   - `/auth/callback`
   - `/dashboard`
   - `/dashboard/gyms/new`
+  - `/dashboard/profile`
 
 ## Learn More
 
