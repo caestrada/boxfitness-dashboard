@@ -42,19 +42,19 @@ export function GymSwitcher({ gyms }: GymSwitcherProps) {
                 <Dumbbell className="size-5" />
               </div>
 
-              <div className="grid flex-1 text-left leading-tight">
-                <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-primary/75">
+              <div className="grid min-w-0 flex-1 gap-0.5 text-left">
+                <span className="block font-mono text-[10px] uppercase tracking-[0.26em] text-primary/75">
                   Box Fitness
                 </span>
-                <span className="truncate text-sm font-semibold text-foreground">
+                <span className="block text-sm font-semibold leading-tight text-foreground">
                   {activeGym?.name ?? "No gyms yet"}
                 </span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="block text-xs leading-[1.35] text-muted-foreground">
                   {activeGym ? `${gyms.length} connected gyms` : "Create your first gym"}
                 </span>
               </div>
 
-              <ChevronsUpDown className="ml-auto text-muted-foreground" />
+              <ChevronsUpDown className="ml-auto shrink-0 self-center text-muted-foreground" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 
