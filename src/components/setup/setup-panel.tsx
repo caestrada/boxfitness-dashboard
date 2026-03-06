@@ -12,7 +12,8 @@ import { MISSING_SUPABASE_ENV_MESSAGE } from "@/lib/env"
 const setupSteps = [
   "Create a new Supabase cloud project for the rebuild.",
   "Copy the project URL and publishable key into .env.local.",
-  "Add /auth/callback to your Supabase Auth redirect URLs.",
+  "Set the Site URL to http://localhost:3000 and add /auth/callback as a redirect URL.",
+  "Apply the initial auth and organization migration from supabase/migrations.",
 ]
 
 export function SetupPanel() {

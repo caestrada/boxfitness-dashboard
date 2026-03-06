@@ -30,12 +30,22 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-4. Configure Supabase Auth redirect URLs:
+4. Configure Supabase Auth URLs:
 
-- `http://localhost:3000/auth/callback`
+- Site URL: `http://localhost:3000`
+- Redirect URL: `http://localhost:3000/auth/callback`
 - your production URL plus `/auth/callback`
 
-5. Start the dev server:
+5. Decide whether to disable email confirmation in development:
+
+- With confirm email on, signup does not return a session immediately.
+- With confirm email off, signup returns a session and signs the user in.
+- The current auth action supports either flow.
+
+6. Apply the first cloud schema migration in your Supabase project from
+   `supabase/migrations/20260306113000_initial_auth_org_foundation.sql`.
+
+7. Start the dev server:
 
 ```bash
 npm run dev
@@ -48,6 +58,8 @@ Open `http://localhost:3000`.
 - Next.js 16 App Router with TypeScript and Tailwind CSS v4
 - shadcn/ui (New York style, zinc base color)
 - Supabase SSR helpers for browser, server, and proxy usage
+- First-pass Supabase schema for `profiles`, `organizations`, and
+  `organization_members` with RLS
 - TanStack React Query provider and Sonner toaster wiring
 - Dark-first theme where `:root` is the default dark palette
 - Starter routes:
@@ -67,7 +79,7 @@ Primary references for the foundation:
 ## Validation
 
 ```bash
-npm run typecheck
+npx tsc --noEmit
 npm run lint
 npm run build
 ```
