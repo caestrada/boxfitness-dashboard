@@ -36,9 +36,9 @@ export function GymSwitcher({ gyms }: GymSwitcherProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="border border-white/10 bg-white/5 data-[state=open]:bg-sidebar-accent"
+              className="border border-sidebar-border/70 bg-white/82 data-[state=open]:bg-sidebar-accent"
             >
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+              <div className="flex size-11 items-center justify-center rounded-[1.1rem] bg-primary text-primary-foreground shadow-[0_14px_30px_-22px_rgba(255,107,44,0.75)]">
                 <Dumbbell className="size-5" />
               </div>
 
@@ -80,7 +80,7 @@ export function GymSwitcher({ gyms }: GymSwitcherProps) {
                     >
                       <div
                         className={cn(
-                          "flex size-9 items-center justify-center rounded-2xl border border-white/10 bg-white/5",
+                          "flex size-9 items-center justify-center rounded-[1rem] border border-border/70 bg-white/85",
                           isActive && "border-primary/20 bg-primary/10 text-primary"
                         )}
                       >

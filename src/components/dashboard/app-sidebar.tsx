@@ -77,7 +77,7 @@ export function AppSidebar({ gyms }: AppSidebarProps) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupLabel>Studio</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {primaryItems.map((item) => {
@@ -103,7 +103,7 @@ export function AppSidebar({ gyms }: AppSidebarProps) {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Planned</SidebarGroupLabel>
+          <SidebarGroupLabel>Queued</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {roadmapItems.map((item) => (
@@ -121,16 +121,18 @@ export function AppSidebar({ gyms }: AppSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-primary/75">
-            Foundation
+        <div className="rounded-[1.6rem] border border-sidebar-border/70 bg-white/78 p-4">
+          <p className="section-label text-primary/75">
+            Rebuild
           </p>
           <p className="mt-3 text-sm font-semibold text-foreground">
-            {gyms.length > 0 ? `${gyms.length} gym workspace${gyms.length > 1 ? "s" : ""}` : "Gym shell ready"}
+            {gyms.length > 0
+              ? `${gyms.length} gym workspace${gyms.length > 1 ? "s" : ""} connected`
+              : "Gym shell ready"}
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Switch gyms from the header dropdown and add new locations without leaving
-            the dashboard shell.
+            Keep navigation gym-aware now so members, classes, billing, and analytics can
+            attach to the right workspace later.
           </p>
         </div>
       </SidebarFooter>

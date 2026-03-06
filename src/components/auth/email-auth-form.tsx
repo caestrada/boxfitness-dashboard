@@ -41,10 +41,10 @@ export function EmailAuthForm({
   const [state, formAction] = useActionState(action, initialAuthActionState)
 
   return (
-    <Card className="border-white/10 bg-card/80 backdrop-blur-xl">
+    <Card className="border-border/70 bg-white/84">
       <CardHeader className="space-y-3">
-        <CardTitle className="text-2xl">{title}</CardTitle>
-        <CardDescription className="leading-7">{description}</CardDescription>
+        <CardTitle className="text-[1.75rem]">{title}</CardTitle>
+        <CardDescription className="max-w-lg leading-7">{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-5">
@@ -91,8 +91,8 @@ export function EmailAuthForm({
             <div
               className={`flex gap-3 rounded-2xl border px-4 py-3 text-sm leading-6 ${
                 state.status === "success"
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
-                  : "border-destructive/30 bg-destructive/10 text-red-100"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                  : "border-destructive/20 bg-destructive/5 text-destructive"
               }`}
             >
               {state.status === "success" ? (

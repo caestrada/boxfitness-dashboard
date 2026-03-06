@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 
 const SIDEBAR_COOKIE_NAME = "boxfitness:sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
-const SIDEBAR_WIDTH = "18rem"
+const SIDEBAR_WIDTH = "15.5rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 
 type SidebarContextValue = {
@@ -122,7 +122,7 @@ function Sidebar({
         <div
           aria-hidden="true"
           className={cn(
-            "fixed inset-0 z-40 bg-black/60 transition-opacity duration-200 md:hidden",
+            "fixed inset-0 z-40 bg-slate-950/20 transition-opacity duration-200 md:hidden",
             openMobile ? "opacity-100" : "pointer-events-none opacity-0"
           )}
           onClick={() => setOpenMobile(false)}
@@ -134,7 +134,7 @@ function Sidebar({
           data-side={side}
           data-state={openMobile ? "open" : "closed"}
           className={cn(
-            "fixed inset-y-0 z-50 flex w-[var(--sidebar-width-mobile)] max-w-[calc(100vw-1rem)] p-3 transition-transform duration-300 ease-out md:hidden",
+            "fixed inset-y-0 z-50 flex w-[var(--sidebar-width-mobile)] max-w-[calc(100vw-1.25rem)] p-3 transition-transform duration-300 ease-out md:hidden",
             side === "left" ? "left-0" : "right-0",
             openMobile
               ? "translate-x-0"
@@ -145,7 +145,7 @@ function Sidebar({
           )}
           {...props}
         >
-          <div className="flex h-full w-full flex-col overflow-hidden rounded-[1.75rem] border border-sidebar-border/70 bg-sidebar/95 shadow-2xl backdrop-blur-xl">
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-sidebar-border/80 bg-sidebar shadow-[0_28px_90px_-44px_rgba(15,23,42,0.28)] backdrop-blur-2xl">
             {children}
           </div>
         </aside>
@@ -171,7 +171,7 @@ function Sidebar({
         data-side={side}
         data-variant={variant}
         className={cn(
-          "absolute inset-y-0 z-30 hidden w-[var(--sidebar-width)] p-3 transition-transform duration-300 ease-out md:flex",
+          "absolute inset-y-0 z-30 hidden w-[var(--sidebar-width)] p-4 transition-transform duration-300 ease-out md:flex",
           side === "left" ? "left-0" : "right-0",
           collapsible === "offcanvas" &&
             !open &&
@@ -182,10 +182,10 @@ function Sidebar({
       >
         <div
           className={cn(
-            "flex h-full w-full flex-col overflow-hidden rounded-[1.75rem] border border-sidebar-border/70 bg-sidebar/90 shadow-xl backdrop-blur-xl",
-            variant === "floating" && "border-white/10 bg-card/85",
+            "flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-sidebar-border/80 bg-sidebar shadow-[0_24px_72px_-44px_rgba(15,23,42,0.24)] backdrop-blur-2xl",
+            variant === "floating" && "bg-card/90",
             variant === "sidebar" && "rounded-none border-y-0 border-l-0 border-r border-sidebar-border shadow-none",
-            variant === "inset" && "border-white/10 bg-sidebar/95"
+            variant === "inset" && "bg-sidebar"
           )}
         >
           {children}
@@ -208,7 +208,7 @@ function SidebarTrigger({
       variant="ghost"
       size="icon-lg"
       className={cn(
-        "rounded-[1.4rem] border border-white/10 bg-white/[0.04] text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-white/[0.08] hover:text-foreground",
+        "rounded-full border border-border/70 bg-white/78 text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] hover:bg-white hover:text-foreground",
         className
       )}
       onClick={(event) => {
@@ -237,7 +237,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sidebar-header"
-      className={cn("flex flex-col gap-3 border-b border-white/10 p-3", className)}
+      className={cn("flex flex-col gap-3 border-b border-sidebar-border/70 p-4", className)}
       {...props}
     />
   )
@@ -247,7 +247,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sidebar-content"
-      className={cn("flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3", className)}
+      className={cn("flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4", className)}
       {...props}
     />
   )
@@ -257,7 +257,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sidebar-footer"
-      className={cn("border-t border-white/10 p-3", className)}
+      className={cn("border-t border-sidebar-border/70 p-4", className)}
       {...props}
     />
   )
@@ -270,7 +270,7 @@ function SidebarSeparator({
   return (
     <Separator
       data-slot="sidebar-separator"
-      className={cn("bg-white/10", className)}
+      className={cn("bg-sidebar-border/70", className)}
       {...props}
     />
   )
@@ -291,7 +291,7 @@ function SidebarGroupLabel({ className, ...props }: React.ComponentProps<"div">)
     <div
       data-slot="sidebar-group-label"
       className={cn(
-        "px-3 font-mono text-[11px] uppercase tracking-[0.28em] text-muted-foreground",
+        "px-3 font-mono text-[11px] uppercase tracking-[0.28em] text-muted-foreground/90",
         className
       )}
       {...props}
@@ -333,7 +333,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "flex w-full items-center gap-3 overflow-hidden rounded-2xl px-3 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/70 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "flex w-full items-center gap-3 overflow-hidden rounded-[1.25rem] px-3.5 py-2.5 text-left text-sm transition-[background-color,color,box-shadow,border-color] outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/20 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       size: {
@@ -342,8 +342,9 @@ const sidebarMenuButtonVariants = cva(
         lg: "min-h-14",
       },
       isActive: {
-        true: "bg-primary/15 text-foreground shadow-[inset_0_0_0_1px_hsl(18_100%_55%_/_0.24)]",
-        false: "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        true:
+          "border border-sidebar-border/70 bg-white/88 text-foreground shadow-[0_16px_40px_-28px_rgba(15,23,42,0.3)]",
+        false: "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
       },
     },
     defaultVariants: {
@@ -381,7 +382,7 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentProps<"span">)
     <span
       data-slot="sidebar-menu-badge"
       className={cn(
-        "ml-auto rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground",
+        "ml-auto rounded-full border border-sidebar-border/70 bg-white/82 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground",
         className
       )}
       {...props}

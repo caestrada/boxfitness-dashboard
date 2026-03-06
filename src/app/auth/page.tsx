@@ -1,9 +1,23 @@
-import { Cloud, Database, LayoutDashboard, ShieldCheck } from "lucide-react"
+import Link from "next/link"
 import { redirect } from "next/navigation"
+import {
+  Cloud,
+  Database,
+  Dumbbell,
+  LayoutDashboard,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react"
 
 import { EmailAuthForm } from "@/components/auth/email-auth-form"
 import { SetupPanel } from "@/components/setup/setup-panel"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { hasSupabaseEnv } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
 import { getFirstString, normalizeRedirectPath } from "@/lib/url"
@@ -14,20 +28,24 @@ interface AuthPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
-const authNotes = [
+const authNotes: Array<{
+  title: string
+  body: string
+  icon: LucideIcon
+}> = [
   {
     title: "Protected app shell",
-    body: "Dashboard routes stay server-protected while auth pages remain public.",
+    body: "Dashboard routes stay server-protected while auth pages remain public and intentionally small.",
     icon: ShieldCheck,
   },
   {
     title: "Cloud session flow",
-    body: "Supabase cookies are refreshed in the proxy layer and reused on the server.",
+    body: "Supabase cookies are refreshed in the proxy layer and reused on the server for every request.",
     icon: Cloud,
   },
   {
     title: "Rebuild-ready structure",
-    body: "This auth surface is intentionally small so the rest of the product can evolve cleanly around it.",
+    body: "This surface keeps auth stable while the rest of the product is redesigned around cleaner workflows.",
     icon: LayoutDashboard,
   },
 ]
@@ -51,78 +69,121 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-6xl items-center px-6 py-16 md:px-10">
-      <div className="grid w-full gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <section className="space-y-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
+      <div
+        aria-hidden="true"
+        className="absolute left-[5%] top-28 hidden w-64 rounded-[2rem] border border-border/70 bg-white/76 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.3)] xl:block"
+      >
+        <p className="section-label">Session Boundary</p>
+        <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-foreground">
+          SSR-protected routes stay intact.
+        </p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          The visual system is lighter, but the auth contract remains server-first.
+        </p>
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="absolute right-[6%] top-36 hidden w-72 rounded-[2rem] border border-border/70 bg-white/76 p-5 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.3)] xl:block"
+      >
+        <p className="section-label">Cloud Target</p>
+        <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-foreground">
+          Fresh Supabase project, clean auth path.
+        </p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          This rebuild keeps the backend boundary new, even while product workflows are
+          still being reselected.
+        </p>
+      </div>
+
+      <Link
+        href="/"
+        className="absolute left-6 top-6 inline-flex items-center gap-3 rounded-full border border-border/70 bg-white/78 px-4 py-2 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]"
+      >
+        <span className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <Dumbbell className="size-4" />
+        </span>
+        Box Fitness
+      </Link>
+
+      <div className="relative z-10 w-full max-w-5xl">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
             <Database className="size-4" />
-            Cloud Supabase auth foundation
+            Cloud auth foundation
           </div>
+          <h1 className="mt-6 text-4xl font-semibold tracking-[-0.05em] text-balance md:text-6xl">
+            Welcome back to the Box Fitness operating system.
+          </h1>
+          <p className="mt-4 text-lg leading-8 text-muted-foreground">
+            A lighter shell, clearer hierarchy, and the same server-first auth
+            boundary underneath.
+          </p>
+        </div>
 
-          <div className="space-y-4">
-            <h1 className="max-w-2xl text-4xl font-semibold tracking-tight md:text-6xl">
-              Sign in to the new Box Fitness control plane.
-            </h1>
-            <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
-              This is the first greenfield auth surface. Stable session handling
-              comes first, then the workflows you decide to rebuild.
-            </p>
-          </div>
+        {message ? (
+          <Card className="mx-auto mt-8 max-w-2xl border-primary/15 bg-primary/8">
+            <CardHeader>
+              <CardDescription className="text-sm leading-7 text-primary">
+                {message}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : null}
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {authNotes.map(({ title, body, icon: Icon }) => (
-              <Card
-                key={title}
-                className="border-white/10 bg-card/70 backdrop-blur-xl"
-              >
-                <CardHeader className="space-y-4">
-                  <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-                    <Icon className="size-5" />
-                  </div>
-                  <div className="space-y-2">
-                    <CardTitle className="text-xl">{title}</CardTitle>
-                    <CardDescription className="leading-7">{body}</CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-5">
-          {message ? (
-            <Card className="border-primary/20 bg-primary/10">
-              <CardHeader>
-                <CardDescription className="text-sm leading-7 text-primary">
-                  {message}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          ) : null}
-
-          {!hasSupabaseEnv() ? (
+        {!hasSupabaseEnv() ? (
+          <div className="mx-auto mt-10 max-w-4xl">
             <SetupPanel />
-          ) : (
+          </div>
+        ) : (
+          <div className="mx-auto mt-10 grid max-w-5xl gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+            <EmailAuthForm
+              action={signInAction}
+              description="Use your existing account to enter the protected dashboard and continue the rebuild from inside the authenticated shell."
+              pendingLabel="Signing in..."
+              redirectTo={redirectTo}
+              submitLabel="Sign in"
+              title="Sign in"
+            />
+
             <div className="grid gap-5">
               <EmailAuthForm
-                action={signInAction}
-                description="Use an existing account to enter the protected dashboard."
-                pendingLabel="Signing in..."
-                redirectTo={redirectTo}
-                submitLabel="Sign in"
-                title="Welcome back"
-              />
-              <EmailAuthForm
                 action={signUpAction}
-                description="Create a new account. Email confirmation is handled through the Supabase callback route."
+                description="Create a new account. Email confirmation still routes through the Supabase callback flow."
                 pendingLabel="Creating account..."
                 redirectTo={redirectTo}
                 submitLabel="Create account"
-                title="Start fresh"
+                title="Create account"
               />
+
+              <Card className="border-border/70 bg-white/78">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Why this surface changed</CardTitle>
+                  <CardDescription className="leading-7">
+                    The new direction borrows a quieter, more editorial interface style
+                    without relaxing the technical boundary underneath.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {authNotes.map(({ title, body, icon: Icon }) => (
+                    <div key={title} className="app-subpanel flex gap-4 p-4">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Icon className="size-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{title}</p>
+                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                          {body}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             </div>
-          )}
-        </section>
+          </div>
+        )}
       </div>
     </main>
   )

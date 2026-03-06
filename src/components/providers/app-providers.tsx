@@ -13,11 +13,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
         closeButton
         position="top-right"
         richColors
-        theme="dark"
+        theme="light"
         toastOptions={{
           classNames: {
             toast:
-              "border border-white/10 bg-zinc-950 text-zinc-50 shadow-2xl shadow-black/30",
+              "border border-border/80 bg-white text-foreground shadow-[0_24px_80px_-36px_rgba(15,23,42,0.22)]",
           },
         }}
       />

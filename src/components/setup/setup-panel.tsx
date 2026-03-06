@@ -18,9 +18,9 @@ const setupSteps = [
 
 export function SetupPanel() {
   return (
-    <Card className="border-primary/25 bg-card/75 backdrop-blur-xl">
+    <Card className="border-primary/15 bg-white/82">
       <CardHeader className="space-y-5">
-        <div className="flex size-14 items-center justify-center rounded-3xl bg-primary/15 text-primary">
+        <div className="flex size-14 items-center justify-center rounded-[1.6rem] bg-primary/12 text-primary">
           <Cloud className="size-6" />
         </div>
         <div className="space-y-3">
@@ -36,7 +36,7 @@ export function SetupPanel() {
         <ol className="space-y-3 text-sm leading-7 text-muted-foreground">
           {setupSteps.map((step, index) => (
             <li key={step} className="flex gap-3">
-              <span className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 font-mono text-xs text-primary">
+              <span className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/12 font-mono text-xs text-primary">
                 0{index + 1}
               </span>
               <span>{step}</span>
@@ -44,7 +44,7 @@ export function SetupPanel() {
           ))}
         </ol>
 
-        <div className="rounded-3xl border border-white/10 bg-black/20 p-5 font-mono text-sm text-zinc-300">
+        <div className="rounded-[1.6rem] border border-border/70 bg-white/74 p-5 font-mono text-sm text-slate-600">
           <div className="mb-4 flex items-center gap-2 text-primary">
             <KeyRound className="size-4" />
             Required environment variables

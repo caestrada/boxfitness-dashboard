@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s | Box Fitness",
   },
   description:
-    "Greenfield Box Fitness dashboard built on Next.js 16 and cloud Supabase.",
+    "Light-first Box Fitness dashboard rebuilt on Next.js 16 and cloud Supabase.",
 }
 
 export default function RootLayout({
