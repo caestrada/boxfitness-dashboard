@@ -62,11 +62,14 @@ Open `http://localhost:3000`.
   `organization_members` with RLS
 - TanStack React Query provider and Sonner toaster wiring
 - Dark-first theme where `:root` is the default dark palette
+- Organization-aware dashboard shell with a shadcn sidebar, gym switcher, and
+  user avatar menu
 - Starter routes:
   - `/`
   - `/auth`
   - `/auth/callback`
   - `/dashboard`
+  - `/dashboard/gyms/new`
 
 ## Learn More
 
