@@ -58,7 +58,7 @@ export default async function DashboardLayout({
       <AppSidebar gyms={gyms} />
 
       <SidebarInset className="px-3 pb-3 pt-3 md:px-4 md:pb-4 md:pt-4">
-        <div className="app-frame relative flex min-h-[calc(100svh-1.5rem)] flex-1 flex-col overflow-hidden">
+        <div className="app-frame relative flex min-h-[calc(100svh-1.5rem)] flex-1 flex-col overflow-hidden md:min-h-[calc(100svh-2rem)]">
           <div
             aria-hidden="true"
             className="dot-grid absolute inset-0 opacity-35 [mask-image:linear-gradient(180deg,white,transparent_72%)]"

@@ -161,7 +161,7 @@ function Sidebar({
       data-side={side}
       data-variant={variant}
       className={cn(
-        "relative hidden shrink-0 transition-[width] duration-300 ease-out md:block",
+        "relative hidden shrink-0 transition-[width] duration-300 ease-out md:sticky md:top-0 md:block md:h-svh md:self-start",
         collapsible === "none" || open ? "w-[var(--sidebar-width)]" : "w-0"
       )}
     >
@@ -227,7 +227,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
   return (
     <main
       data-slot="sidebar-inset"
-      className={cn("relative flex min-h-svh flex-1 flex-col overflow-hidden", className)}
+      className={cn("relative flex min-h-0 flex-1 flex-col overflow-hidden", className)}
       {...props}
     />
   )
