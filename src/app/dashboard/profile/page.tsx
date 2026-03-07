@@ -1,8 +1,17 @@
-import { Moon, Settings2, Sun, UserRound } from "lucide-react"
+import { ImageUp, Moon, Settings2, Sun, UserRound } from "lucide-react"
+import { redirect } from "next/navigation"
 
+import { ProfileAvatarCard } from "@/components/dashboard/profile-avatar-card"
 import { ThemePreferenceCard } from "@/components/dashboard/theme-preference-card"
+import { parseDashboardProfile } from "@/lib/dashboard"
+import { createClient } from "@/lib/supabase/server"
 
 const profileNotes = [
+  {
+    title: "Avatar image",
+    body: "Set the image that appears in the authenticated header menu and account surface.",
+    icon: ImageUp,
+  },
   {
     title: "Theme preference",
     body: "Switch between light and dark mode without changing the underlying app structure.",
@@ -10,8 +19,8 @@ const profileNotes = [
   },
   {
     title: "Local persistence",
-    body: "Your choice is saved in this browser so the shell reopens in the same mode.",
-    icon: UserRound,
+    body: "Theme choice stays in this browser so the shell reopens in the same mode.",
+    icon: Sun,
   },
 ] as const
 
@@ -28,9 +37,28 @@ const modeRows = [
   },
 ] as const
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth?redirectTo=/dashboard/profile")
+  }
+
+  const { data: profileRow } = await supabase
+    .from("profiles")
+    .select("email, full_name, avatar_url")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  const profile = parseDashboardProfile(profileRow, user.email ?? null)
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
+      <ProfileAvatarCard user={profile} />
+
       <section className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
         <section className="app-panel relative overflow-hidden p-8 md:p-10">
           <div
@@ -46,12 +74,12 @@ export default function ProfilePage() {
 
             <div className="mt-6 space-y-4">
               <h1 className="text-4xl font-semibold tracking-[-0.04em] text-balance md:text-5xl">
-                Personalize how the Box Fitness shell looks.
+                Personalize how your Box Fitness account appears.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-                This profile section starts with appearance controls so you can move
-                between the lighter editorial shell and a darker operational mode when
-                needed.
+                Start with the avatar and appearance settings that carry through the
+                authenticated dashboard shell. Theme stays local to this browser, while
+                your avatar follows your account record.
               </p>
             </div>
 

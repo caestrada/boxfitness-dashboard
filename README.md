@@ -42,8 +42,8 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 - With confirm email off, signup returns a session and signs the user in.
 - The current auth action supports either flow.
 
-6. Apply the first cloud schema migration in your Supabase project from
-   `supabase/migrations/20260306113000_initial_auth_org_foundation.sql`.
+6. Apply the Supabase migrations in `supabase/migrations/` to provision the auth,
+   organization, and profile avatar storage foundation in your cloud project.
 
 7. Start the dev server:
 
@@ -62,6 +62,7 @@ Open `http://localhost:3000`.
   `organization_members` with RLS
 - TanStack React Query provider and Sonner toaster wiring
 - Light-first default theme with an optional dark mode toggle in profile settings
+- Profile avatar uploads backed by a `profile-avatars` Supabase Storage bucket
 - Organization-aware dashboard shell with a shadcn sidebar, gym switcher, and
   user avatar menu
 - Starter routes:

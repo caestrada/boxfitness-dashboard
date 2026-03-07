@@ -15,7 +15,7 @@ function AppToaster() {
   return (
     <Toaster
       closeButton
-      position="top-right"
+      position="bottom-right"
       richColors
       theme={theme}
       toastOptions={{
