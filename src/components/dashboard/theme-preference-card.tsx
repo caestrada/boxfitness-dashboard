@@ -35,8 +35,7 @@ export function ThemePreferenceCard() {
       <CardHeader>
         <CardTitle className="text-2xl">Appearance</CardTitle>
         <CardDescription className="max-w-2xl leading-7">
-          Choose how the control plane should render in this browser. The preference
-          is saved locally and applies across the authenticated shell.
+          Choose how Box Fitness should render in this browser.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -76,69 +75,6 @@ export function ThemePreferenceCard() {
               </button>
             )
           })}
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="app-subpanel p-5">
-            <p className="section-label">Preference Scope</p>
-            <p className="mt-3 text-sm font-semibold text-foreground">
-              Saved in this browser
-            </p>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              This is a local preference for the current browser profile. It does not
-              yet sync through your Box Fitness account.
-            </p>
-          </div>
-
-          <div
-            className={cn(
-              "rounded-[1.5rem] p-5 transition-colors",
-              theme === "dark"
-                ? "surface-strong text-slate-100"
-                : "surface-elevated text-slate-900"
-            )}
-          >
-            <p
-              className={cn(
-                "font-mono text-[11px] uppercase tracking-[0.28em]",
-                theme === "dark" ? "text-slate-400" : "text-slate-500"
-              )}
-            >
-              Theme Preview
-            </p>
-
-            <div className="mt-4 space-y-3">
-              <div
-                className="surface-soft rounded-[1.2rem] px-4 py-3"
-              >
-                <p className="text-sm font-semibold">Operational summary</p>
-                <p
-                  className={cn(
-                    "mt-1 text-sm",
-                    theme === "dark" ? "text-slate-400" : "text-slate-600"
-                  )}
-                >
-                  Active gym workspace and current module posture.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span
-                  className={cn(
-                    "rounded-full px-3 py-1 text-xs font-medium",
-                    theme === "dark"
-                      ? "bg-slate-800 text-slate-200"
-                      : "bg-slate-100 text-slate-600"
-                  )}
-                >
-                  {theme === "dark" ? "Dark preview" : "Light preview"}
-                </span>
-                <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                  Accent preserved
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>
