@@ -1,7 +1,7 @@
 "use client"
 
 import { startTransition, useActionState, useEffect, useRef, type ChangeEvent } from "react"
-import { Camera } from "lucide-react"
+import { Camera, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -10,7 +10,6 @@ import {
 } from "@/app/dashboard/profile/actions"
 import { initialProfileAvatarActionState } from "@/app/dashboard/profile/avatar-action-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -18,6 +17,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   getInitials,
   getUserDisplayName,
@@ -103,22 +110,50 @@ export function ProfileAvatarCard({ user }: ProfileAvatarCardProps) {
       <CardContent className="space-y-6">
         <div className="grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
           <div className="flex justify-start">
-            <button
-              aria-describedby="profile-avatar-help"
-              className="group relative rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20"
-              onClick={openFilePicker}
-              type="button"
-            >
-              <Avatar className="size-28 border border-primary/15 bg-primary/10 shadow-[0_0_0_1px_rgba(255,107,44,0.08)] transition-transform duration-200 group-hover:scale-[1.02]">
-                <AvatarImage alt={displayName} src={avatarUrl ?? undefined} />
-                <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
-              </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-describedby="profile-avatar-help"
+                  className="group relative rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20"
+                  type="button"
+                >
+                  <Avatar className="size-28 border border-primary/15 bg-primary/10 shadow-[0_0_0_1px_rgba(255,107,44,0.08)] transition-transform duration-200 group-hover:scale-[1.02]">
+                    <AvatarImage alt={displayName} src={avatarUrl ?? undefined} />
+                    <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+                  </Avatar>
 
-              <span className="absolute bottom-0 right-0 flex size-10 items-center justify-center rounded-full border-4 border-card bg-primary text-primary-foreground shadow-[0_16px_36px_-20px_rgba(255,107,44,0.55)]">
-                <Camera className="size-4" />
-              </span>
-              <span className="sr-only">Choose avatar image</span>
-            </button>
+                  <span className="absolute bottom-0 right-0 flex size-10 items-center justify-center rounded-full border-4 border-card bg-primary text-primary-foreground shadow-[0_16px_36px_-20px_rgba(255,107,44,0.55)]">
+                    <Camera className="size-4" />
+                  </span>
+                  <span className="sr-only">Manage avatar</span>
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="start" className="w-56" sideOffset={16}>
+                <DropdownMenuLabel>Avatar actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onSelect={openFilePicker}>
+                  <Camera className="size-4" />
+                  {avatarUrl ? "Upload new photo" : "Upload photo"}
+                </DropdownMenuItem>
+
+                {avatarUrl ? (
+                  <DropdownMenuItem asChild variant="destructive">
+                    <button
+                      className="flex w-full items-center gap-2"
+                      form="profile-avatar-form"
+                      name="intent"
+                      type="submit"
+                      value="remove"
+                    >
+                      <Trash2 className="size-4" />
+                      Remove photo
+                    </button>
+                  </DropdownMenuItem>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="min-w-0 space-y-4">
@@ -130,11 +165,16 @@ export function ProfileAvatarCard({ user }: ProfileAvatarCardProps) {
                 {user.email ?? "Signed in"}
               </p>
               <p id="profile-avatar-help" className="mt-2 text-sm text-muted-foreground">
-                Click the photo to upload a new image.
+                Click the photo to upload a new image or remove the current one.
               </p>
             </div>
 
-            <form ref={formRef} action={formAction} className="w-full max-w-xl space-y-4">
+            <form
+              id="profile-avatar-form"
+              ref={formRef}
+              action={formAction}
+              className="w-full max-w-xl"
+            >
               <input name="intent" type="hidden" value="upload" />
               <input
                 ref={fileInputRef}
@@ -146,14 +186,6 @@ export function ProfileAvatarCard({ user }: ProfileAvatarCardProps) {
                 onChange={handleAvatarChange}
                 type="file"
               />
-
-              {avatarUrl ? (
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Button name="intent" type="submit" value="remove" variant="outline">
-                    Remove avatar
-                  </Button>
-                </div>
-              ) : null}
             </form>
           </div>
         </div>

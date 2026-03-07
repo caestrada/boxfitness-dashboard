@@ -22,6 +22,10 @@ function createSubmissionId() {
   return crypto.randomUUID()
 }
 
+function getAvatarFormIntent(formData: FormData) {
+  return formData.getAll("intent").includes("remove") ? "remove" : "upload"
+}
+
 function getProfilesTableErrorMessage(message: string) {
   const normalizedMessage = message.toLowerCase()
 
@@ -77,7 +81,7 @@ export async function updateProfileAvatarAction(
   }
 
   const { supabaseUrl } = getSupabaseEnv()
-  const intent = formData.get("intent") === "remove" ? "remove" : "upload"
+  const intent = getAvatarFormIntent(formData)
 
   const { data: currentProfile, error: currentProfileError } = await supabase
     .from("profiles")
