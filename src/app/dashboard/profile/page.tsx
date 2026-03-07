@@ -1,12 +1,17 @@
 import { ImageUp, Moon, Settings2, Sun, UserRound } from "lucide-react"
 import { redirect } from "next/navigation"
 
-import { ProfileAvatarCard } from "@/components/dashboard/profile-avatar-card"
+import { ProfileCard } from "@/components/dashboard/profile-card"
 import { ThemePreferenceCard } from "@/components/dashboard/theme-preference-card"
 import { parseDashboardProfile } from "@/lib/dashboard"
 import { createClient } from "@/lib/supabase/server"
 
 const profileNotes = [
+  {
+    title: "Profile details",
+    body: "Update the display name used across the authenticated shell and account surface.",
+    icon: UserRound,
+  },
   {
     title: "Avatar image",
     body: "Set the image that appears in the authenticated header menu and account surface.",
@@ -57,7 +62,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
-      <ProfileAvatarCard user={profile} />
+      <ProfileCard user={profile} />
 
       <section className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
         <section className="app-panel relative overflow-hidden p-8 md:p-10">
@@ -77,9 +82,9 @@ export default async function ProfilePage() {
                 Personalize how your Box Fitness account appears.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-                Start with the avatar and appearance settings that carry through the
-                authenticated dashboard shell. Theme stays local to this browser, while
-                your avatar follows your account record.
+                Start with the name, avatar, and appearance settings that carry through
+                the authenticated dashboard shell. Theme stays local to this browser,
+                while your profile details follow your account record.
               </p>
             </div>
 

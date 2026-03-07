@@ -2,8 +2,13 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { z } from "zod/v3"
 
-import type { ProfileAvatarActionFieldErrors, ProfileAvatarActionState } from "@/app/dashboard/profile/avatar-action-state"
+import type {
+  ProfileAvatarActionFieldErrors,
+  ProfileAvatarActionState,
+  ProfileDetailsActionState,
+} from "@/app/dashboard/profile/profile-action-state"
 import { getSupabaseEnv, hasSupabaseEnv, MISSING_SUPABASE_ENV_MESSAGE } from "@/lib/env"
 import {
   getProfileAvatarFileExtension,
@@ -17,6 +22,13 @@ import { createClient } from "@/lib/supabase/server"
 
 const MISSING_PROFILES_TABLE_MESSAGE =
   "This Supabase project is missing the `profiles` table. Apply the migrations in `supabase/migrations/` to the cloud project, then retry."
+
+const profileDetailsSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .max(120, "Full name must be 120 characters or fewer."),
+})
 
 function createSubmissionId() {
   return crypto.randomUUID()
@@ -61,6 +73,35 @@ function createSuccessState(
     avatarUrl,
     submissionId: createSubmissionId(),
   }
+}
+
+function createProfileDetailsErrorState(
+  message: string,
+  fieldErrors?: ProfileDetailsActionState["fieldErrors"]
+): ProfileDetailsActionState {
+  return {
+    status: "error",
+    message,
+    fieldErrors,
+    submissionId: createSubmissionId(),
+  }
+}
+
+function createProfileDetailsSuccessState(
+  message: string,
+  fullName: string | null
+): ProfileDetailsActionState {
+  return {
+    status: "success",
+    message,
+    fullName,
+    submissionId: createSubmissionId(),
+  }
+}
+
+function normalizeFullName(value: string) {
+  const trimmedValue = value.trim()
+  return trimmedValue.length > 0 ? trimmedValue : null
 }
 
 export async function updateProfileAvatarAction(
@@ -187,4 +228,47 @@ export async function updateProfileAvatarAction(
   revalidatePath("/dashboard/profile")
 
   return createSuccessState("Avatar updated.", publicUrl)
+}
+
+export async function updateProfileDetailsAction(
+  _previousState: ProfileDetailsActionState,
+  formData: FormData
+): Promise<ProfileDetailsActionState> {
+  if (!hasSupabaseEnv()) {
+    return createProfileDetailsErrorState(MISSING_SUPABASE_ENV_MESSAGE)
+  }
+
+  const parsedValue = profileDetailsSchema.safeParse({
+    fullName: typeof formData.get("fullName") === "string" ? formData.get("fullName") : "",
+  })
+
+  if (!parsedValue.success) {
+    return createProfileDetailsErrorState("Fix the highlighted field and try again.", {
+      fullName: parsedValue.error.issues[0]?.message,
+    })
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth?redirectTo=/dashboard/profile")
+  }
+
+  const nextFullName = normalizeFullName(parsedValue.data.fullName)
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ full_name: nextFullName })
+    .eq("id", user.id)
+
+  if (updateError) {
+    return createProfileDetailsErrorState(getProfilesTableErrorMessage(updateError.message))
+  }
+
+  revalidatePath("/dashboard", "layout")
+  revalidatePath("/dashboard/profile")
+
+  return createProfileDetailsSuccessState("Profile updated.", nextFullName)
 }

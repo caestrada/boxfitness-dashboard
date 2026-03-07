@@ -62,8 +62,8 @@ Open `http://localhost:3000`.
   `organization_members` with RLS
 - TanStack React Query provider and Sonner toaster wiring
 - Light-first default theme with an optional dark mode toggle in profile settings
-- Profile avatar uploads and removal backed by a `profile-avatars` Supabase
-  Storage bucket and managed from the profile avatar menu
+- Profile editing supports full-name updates plus avatar uploads and removal,
+  backed by a `profile-avatars` Supabase Storage bucket
 - Organization-aware dashboard shell with a shadcn sidebar, gym switcher, and
   user avatar menu
 - Starter routes:
