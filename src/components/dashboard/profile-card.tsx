@@ -235,36 +235,26 @@ export function ProfileCard({ user }: ProfileCardProps) {
 
           <div className="min-w-0 space-y-5">
             <form action={detailsFormAction} className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="profile-full-name">Full name</Label>
-                  <Input
-                    key={currentFullName ?? "__empty__"}
-                    defaultValue={currentFullName ?? ""}
-                    id="profile-full-name"
-                    aria-invalid={Boolean(detailsState.fieldErrors?.fullName)}
-                    maxLength={120}
-                    name="fullName"
-                    placeholder="Carlos Estrada"
-                  />
-                  {detailsState.fieldErrors?.fullName ? (
-                    <p className="text-sm text-destructive">
-                      {detailsState.fieldErrors.fullName}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      This name is shown in the header menu and account surfaces.
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="profile-email">Email address</Label>
-                  <Input id="profile-email" readOnly value={user.email ?? ""} />
-                  <p className="text-sm text-muted-foreground">
-                    Email stays managed through authentication for now.
+              <div className="space-y-2">
+                <Label htmlFor="profile-full-name">Full name</Label>
+                <Input
+                  key={currentFullName ?? "__empty__"}
+                  defaultValue={currentFullName ?? ""}
+                  id="profile-full-name"
+                  aria-invalid={Boolean(detailsState.fieldErrors?.fullName)}
+                  maxLength={120}
+                  name="fullName"
+                  placeholder="Carlos Estrada"
+                />
+                {detailsState.fieldErrors?.fullName ? (
+                  <p className="text-sm text-destructive">
+                    {detailsState.fieldErrors.fullName}
                   </p>
-                </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    This name is shown in the header menu and account surfaces.
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
