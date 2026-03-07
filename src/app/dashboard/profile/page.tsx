@@ -69,7 +69,7 @@ export default async function ProfilePage() {
           <div className="relative">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
               <UserRound className="size-4" />
-              Profile
+              Account Settings
             </div>
 
             <div className="mt-6 space-y-4">

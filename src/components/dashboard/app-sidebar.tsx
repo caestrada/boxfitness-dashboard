@@ -47,7 +47,7 @@ const primaryItems = [
     matches: ["/dashboard/gyms"],
   },
   {
-    title: "Profile",
+    title: "Account Settings",
     href: "/dashboard/profile",
     icon: UserRound,
     matches: ["/dashboard/profile"],

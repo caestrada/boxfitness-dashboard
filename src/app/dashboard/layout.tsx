@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { Building2 } from "lucide-react"
 
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
+import { DashboardShellHeader } from "@/components/dashboard/dashboard-shell-header"
 import { NavUser } from "@/components/dashboard/nav-user"
 import { SetupPanel } from "@/components/setup/setup-panel"
 import { Button } from "@/components/ui/button"
@@ -77,12 +78,7 @@ export default async function DashboardLayout({
               <div className="flex min-w-0 items-center gap-3 md:gap-4">
                 <SidebarTrigger />
                 <div className="min-w-0">
-                  <p className="section-label">Studio Control Plane</p>
-                  <p className="truncate text-base font-semibold tracking-[-0.02em] text-foreground">
-                    {gyms.length > 0
-                      ? `${gyms.length} gym workspace${gyms.length > 1 ? "s" : ""} connected`
-                      : "Create your first gym workspace"}
-                  </p>
+                  <DashboardShellHeader gymCount={gyms.length} />
                 </div>
               </div>
 
