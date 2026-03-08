@@ -15,8 +15,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  getRequestedGymSlug,
+  parseDashboardGyms,
+  resolveActiveGym,
+} from "@/lib/dashboard"
 import { getSupabaseProjectHost } from "@/lib/env"
-import { parseDashboardGyms } from "@/lib/dashboard"
 import { createClient } from "@/lib/supabase/server"
 
 interface DashboardPageProps {
@@ -51,8 +55,7 @@ export default async function DashboardPage({
   searchParams,
 }: DashboardPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined
-  const requestedGymSlug =
-    typeof resolvedSearchParams?.gym === "string" ? resolvedSearchParams.gym : null
+  const requestedGymSlug = getRequestedGymSlug(resolvedSearchParams?.gym)
 
   const supabase = await createClient()
   const { data: gymRows } = await supabase
@@ -62,7 +65,7 @@ export default async function DashboardPage({
     .order("name")
 
   const gyms = parseDashboardGyms(gymRows)
-  const activeGym = gyms.find((gym) => gym.slug === requestedGymSlug) ?? gyms[0] ?? null
+  const activeGym = resolveActiveGym(gyms, requestedGymSlug)
   const projectHost = getSupabaseProjectHost()
 
   const workspaceFacts = [

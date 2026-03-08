@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation"
 import { z } from "zod/v3"
 
+import type { CreateGymActionState } from "@/app/dashboard/gym-action-state"
 import { hasSupabaseEnv, MISSING_SUPABASE_ENV_MESSAGE } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
 
@@ -13,18 +14,6 @@ const createGymSchema = z.object({
     .min(2, "Gym name must be at least 2 characters.")
     .max(120, "Gym name must be 120 characters or fewer."),
 })
-
-export interface CreateGymActionState {
-  status: "idle" | "error"
-  message?: string
-  fieldErrors?: {
-    name?: string
-  }
-}
-
-export const initialCreateGymActionState: CreateGymActionState = {
-  status: "idle",
-}
 
 function slugifyGymName(value: string) {
   return value
@@ -83,15 +72,13 @@ export async function createGymAction(
     redirect("/auth?redirectTo=/dashboard/gyms/new")
   }
 
-  const { data: organization, error: organizationError } = await supabase
-    .from("organizations")
-    .insert({
-      name: parsedValue.data.name,
-      slug,
-      created_by_user_id: user.id,
-    })
-    .select("id, slug")
-    .single()
+  const { data: createdOrganizations, error: organizationError } = await supabase.rpc(
+    "create_organization_with_owner",
+    {
+      organization_name_input: parsedValue.data.name,
+      organization_slug_input: slug,
+    }
+  )
 
   if (organizationError) {
     if (organizationError.code === "23505") {
@@ -110,17 +97,14 @@ export async function createGymAction(
     }
   }
 
-  const { error: membershipError } = await supabase.from("organization_members").insert({
-    organization_id: organization.id,
-    user_id: user.id,
-    role: "owner",
-    status: "active",
-  })
+  const organization = Array.isArray(createdOrganizations)
+    ? createdOrganizations[0]
+    : createdOrganizations
 
-  if (membershipError) {
+  if (!organization?.slug) {
     return {
       status: "error",
-      message: membershipError.message,
+      message: "The gym was created without a visible workspace record. Apply the latest Supabase migrations and try again.",
     }
   }
 

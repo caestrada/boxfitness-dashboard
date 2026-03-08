@@ -3,10 +3,8 @@
 import { useActionState, useState } from "react"
 import { CircleAlert, ShieldCheck, Sparkles } from "lucide-react"
 
-import {
-  createGymAction,
-  initialCreateGymActionState,
-} from "@/app/dashboard/actions"
+import { createGymAction } from "@/app/dashboard/actions"
+import { initialCreateGymActionState } from "@/app/dashboard/gym-action-state"
 import { SubmitButton } from "@/components/auth/submit-button"
 import {
   Card,

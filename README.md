@@ -27,8 +27,19 @@ cp .env.local.example .env.local
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+STRIPE_SECRET_KEY=sk_test_your-secret-key
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+STRIPE_STARTER_PRICE_ID=price_your_starter_price
+STRIPE_PRO_PRICE_ID=price_your_pro_price
 ```
+
+`SUPABASE_SERVICE_ROLE_KEY` is server-only and is used by the Stripe webhook route to
+sync organization subscription state back into Supabase.
+`STRIPE_STARTER_PRICE_ID` and `STRIPE_PRO_PRICE_ID` should usually be recurring
+`price_...` IDs. A `prod_...` product ID is also accepted if that product has a
+default recurring price or exactly one active recurring price.
 
 4. Configure Supabase Auth URLs:
 
@@ -43,9 +54,14 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 - The current auth action supports either flow.
 
 6. Apply the Supabase migrations in `supabase/migrations/` to provision the auth,
-   organization, and profile avatar storage foundation in your cloud project.
+   organization, profile avatar storage, and organization billing foundation in
+   your cloud project.
 
-7. Start the dev server:
+7. If you want Stripe billing enabled locally, configure a webhook endpoint that
+   points at `http://localhost:3000/api/billing/webhooks/stripe` and copy the
+   resulting signing secret into `STRIPE_WEBHOOK_SECRET`.
+
+8. Start the dev server:
 
 ```bash
 npm run dev
@@ -66,6 +82,10 @@ Open `http://localhost:3000`.
   backed by a `profile-avatars` Supabase Storage bucket
 - Organization-aware dashboard shell with a shadcn sidebar, gym switcher, and
   user avatar menu
+- Organization-scoped billing in Account Settings, backed by Stripe Checkout,
+  Stripe Billing Portal, duplicate-checkout guards keyed to the workspace's
+  Stripe customer/subscription, profile-page reconciliation against Stripe, and
+  Stripe webhook sync into Supabase
 - Starter routes:
   - `/`
   - `/auth`
@@ -73,6 +93,9 @@ Open `http://localhost:3000`.
   - `/dashboard`
   - `/dashboard/gyms/new`
   - `/dashboard/profile`
+  - `/api/billing/checkout`
+  - `/api/billing/portal`
+  - `/api/billing/webhooks/stripe`
 
 ## Learn More
 

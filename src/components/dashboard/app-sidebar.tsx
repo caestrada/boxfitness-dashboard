@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import {
   BarChart3,
   Building2,
@@ -27,7 +27,11 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import type { DashboardGym } from "@/lib/dashboard"
+import {
+  getDashboardPathWithGym,
+  getRequestedGymSlug,
+  type DashboardGym,
+} from "@/lib/dashboard"
 
 interface AppSidebarProps {
   gyms: DashboardGym[]
@@ -39,18 +43,21 @@ const primaryItems = [
     href: "/dashboard",
     icon: LayoutDashboard,
     matches: ["/dashboard"],
+    preserveGymContext: true,
   },
   {
     title: "Gyms",
     href: "/dashboard/gyms/new",
     icon: Building2,
     matches: ["/dashboard/gyms"],
+    preserveGymContext: false,
   },
   {
     title: "Account Settings",
     href: "/dashboard/profile",
     icon: UserRound,
     matches: ["/dashboard/profile"],
+    preserveGymContext: true,
   },
 ] as const
 
@@ -75,6 +82,8 @@ const roadmapItems = [
 
 export function AppSidebar({ gyms }: AppSidebarProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const currentGymSlug = getRequestedGymSlug(searchParams.get("gym"))
 
   return (
     <Sidebar collapsible="offcanvas" variant="inset">
@@ -95,7 +104,13 @@ export function AppSidebar({ gyms }: AppSidebarProps) {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive}>
-                      <Link href={item.href}>
+                      <Link
+                        href={
+                          item.preserveGymContext
+                            ? getDashboardPathWithGym(item.href, currentGymSlug)
+                            : item.href
+                        }
+                      >
                         <item.icon className="size-4" />
                         <span>{item.title}</span>
                       </Link>

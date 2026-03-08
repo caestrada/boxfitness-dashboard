@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Check, ChevronsUpDown, Dumbbell, PlusCircle } from "lucide-react"
 
 import {
@@ -17,7 +17,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import type { DashboardGym } from "@/lib/dashboard"
+import {
+  getDashboardPathWithGym,
+  getRequestedGymSlug,
+  resolveActiveGym,
+  type DashboardGym,
+} from "@/lib/dashboard"
 import { cn } from "@/lib/utils"
 
 interface GymSwitcherProps {
@@ -25,9 +30,11 @@ interface GymSwitcherProps {
 }
 
 export function GymSwitcher({ gyms }: GymSwitcherProps) {
+  const pathname = usePathname()
   const searchParams = useSearchParams()
-  const requestedGymSlug = searchParams.get("gym")
-  const activeGym = gyms.find((gym) => gym.slug === requestedGymSlug) ?? gyms[0] ?? null
+  const requestedGymSlug = getRequestedGymSlug(searchParams.get("gym"))
+  const activeGym = resolveActiveGym(gyms, requestedGymSlug)
+  const routePath = pathname.startsWith("/dashboard/gyms/new") ? "/dashboard" : pathname
 
   return (
     <SidebarMenu>
@@ -76,7 +83,7 @@ export function GymSwitcher({ gyms }: GymSwitcherProps) {
                   <DropdownMenuItem asChild key={gym.id}>
                     <Link
                       className="flex items-center gap-3"
-                      href={`/dashboard?gym=${gym.slug}`}
+                      href={getDashboardPathWithGym(routePath, gym.slug)}
                     >
                       <div
                         className={cn(
