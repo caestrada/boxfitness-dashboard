@@ -4,23 +4,17 @@ import { z } from "zod/v3"
 
 import {
   createStripeClient,
-  getStripePriceIdForTier,
   hasStripeBillingEnv,
   MISSING_STRIPE_BILLING_ENV_MESSAGE,
+  synchronizeOrganizationBillingSnapshot,
 } from "@/lib/billing-server"
-import { getRequestOrigin } from "@/lib/url"
 import { createClient } from "@/lib/supabase/server"
 
 export const runtime = "nodejs"
 
-const createPortalBodySchema = z.object({
-  organizationId: z.string().uuid("Select a valid workspace before opening billing."),
-  targetTier: z.enum(["free", "starter", "pro"]).optional(),
+const renewSubscriptionBodySchema = z.object({
+  organizationId: z.string().uuid("Select a valid workspace before renewing the plan."),
 })
-
-function createErrorResponse(status: number, message: string) {
-  return NextResponse.json({ message }, { status })
-}
 
 const MANAGED_STRIPE_SUBSCRIPTION_STATUSES = new Set<Stripe.Subscription.Status>([
   "trialing",
@@ -30,6 +24,10 @@ const MANAGED_STRIPE_SUBSCRIPTION_STATUSES = new Set<Stripe.Subscription.Status>
   "incomplete",
   "paused",
 ])
+
+function createErrorResponse(status: number, message: string) {
+  return NextResponse.json({ message }, { status })
+}
 
 function isStripeResourceMissingError(error: unknown) {
   return (
@@ -105,11 +103,17 @@ function getManagedSubscriptionForOrganization(
 
 async function getActiveOrganizationSubscription(
   stripe: Stripe,
-  customerId: string,
+  customerId: string | null,
   organizationId: string,
   storedSubscriptionId: string | null
 ) {
   const directSubscription = await getStripeSubscriptionById(stripe, storedSubscriptionId)
+  if (!customerId) {
+    return directSubscription && MANAGED_STRIPE_SUBSCRIPTION_STATUSES.has(directSubscription.status)
+      ? directSubscription
+      : null
+  }
+
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
     status: "all",
@@ -123,44 +127,17 @@ async function getActiveOrganizationSubscription(
   )
 }
 
-function getPortalFlowSubscriptionItem(subscription: Stripe.Subscription) {
-  const primaryItem = subscription.items.data[0] ?? null
-
-  if (!primaryItem?.id) {
-    throw new Error("Stripe could not find the active subscription item for this workspace.")
-  }
-
-  if (subscription.items.data.length > 1) {
-    throw new Error(
-      "This workspace has a multi-item Stripe subscription that cannot be changed from this flow."
-    )
-  }
-
-  return primaryItem
-}
-
-async function buildPortalReturnUrl(organizationSlug: string, billingState?: string) {
-  const returnUrl = new URL("/dashboard/profile", await getRequestOrigin())
-  returnUrl.searchParams.set("gym", organizationSlug)
-
-  if (billingState) {
-    returnUrl.searchParams.set("billing", billingState)
-  }
-
-  return returnUrl
-}
-
 export async function POST(request: Request) {
   if (!hasStripeBillingEnv()) {
     return createErrorResponse(503, MISSING_STRIPE_BILLING_ENV_MESSAGE)
   }
 
-  let payload: z.infer<typeof createPortalBodySchema>
+  let payload: z.infer<typeof renewSubscriptionBodySchema>
 
   try {
-    payload = createPortalBodySchema.parse(await request.json())
+    payload = renewSubscriptionBodySchema.parse(await request.json())
   } catch {
-    return createErrorResponse(400, "Choose a valid workspace before opening billing.")
+    return createErrorResponse(400, "Choose a valid workspace before renewing the plan.")
   }
 
   const supabase = await createClient()
@@ -182,7 +159,7 @@ export async function POST(request: Request) {
       .maybeSingle(),
     supabase
       .from("organizations")
-      .select("id, slug, stripe_customer_id, stripe_subscription_id, subscription_tier")
+      .select("id, stripe_customer_id, stripe_subscription_id")
       .eq("id", payload.organizationId)
       .is("archived_at", null)
       .maybeSingle(),
@@ -200,99 +177,36 @@ export async function POST(request: Request) {
     return createErrorResponse(403, "Only workspace owners can manage billing.")
   }
 
-  if (!organization.stripe_customer_id) {
-    return createErrorResponse(
-      409,
-      "This workspace does not have a synced Stripe customer yet. Wait for billing sync, then try again."
-    )
+  if (!organization.stripe_customer_id && !organization.stripe_subscription_id) {
+    return createErrorResponse(409, "This workspace does not have a Stripe subscription to renew.")
   }
 
   const stripe = createStripeClient()
 
   try {
-    const returnUrl = await buildPortalReturnUrl(organization.slug)
-    const sessionParams: Stripe.BillingPortal.SessionCreateParams = {
-      customer: organization.stripe_customer_id,
-      return_url: returnUrl.toString(),
+    const activeSubscription = await getActiveOrganizationSubscription(
+      stripe,
+      organization.stripe_customer_id ?? null,
+      organization.id,
+      organization.stripe_subscription_id ?? null
+    )
+
+    if (!activeSubscription) {
+      return createErrorResponse(409, "This workspace does not have an active Stripe subscription.")
     }
 
-    if (payload.targetTier) {
-      const activeSubscription = await getActiveOrganizationSubscription(
-        stripe,
-        organization.stripe_customer_id,
-        organization.id,
-        organization.stripe_subscription_id ?? null
-      )
-
-      if (!activeSubscription) {
-        return createErrorResponse(
-          409,
-          "This workspace does not have an active Stripe subscription to change yet."
-        )
-      }
-
-      if (payload.targetTier === "free") {
-        const completedReturnUrl = await buildPortalReturnUrl(
-          organization.slug,
-          "cancel-scheduled"
-        )
-
-        sessionParams.flow_data = {
-          after_completion: {
-            type: "redirect",
-            redirect: {
-              return_url: completedReturnUrl.toString(),
-            },
-          },
-          subscription_cancel: {
-            subscription: activeSubscription.id,
-          },
-          type: "subscription_cancel",
-        }
-      } else {
-        const currentTier = organization.subscription_tier?.trim().toLowerCase() ?? null
-
-        if (currentTier === payload.targetTier) {
-          return createErrorResponse(409, "This workspace is already on the selected plan.")
-        }
-
-        const subscriptionItem = getPortalFlowSubscriptionItem(activeSubscription)
-        const targetPriceId = await getStripePriceIdForTier(stripe, payload.targetTier)
-
-        if (subscriptionItem.price.id === targetPriceId) {
-          return createErrorResponse(409, "This workspace is already on the selected plan.")
-        }
-
-        const completedReturnUrl = await buildPortalReturnUrl(organization.slug, "plan-updated")
-
-        sessionParams.flow_data = {
-          after_completion: {
-            type: "redirect",
-            redirect: {
-              return_url: completedReturnUrl.toString(),
-            },
-          },
-          subscription_update_confirm: {
-            items: [
-              {
-                id: subscriptionItem.id,
-                price: targetPriceId,
-                quantity: subscriptionItem.quantity ?? 1,
-              },
-            ],
-            subscription: activeSubscription.id,
-          },
-          type: "subscription_update_confirm",
-        }
-      }
+    if (!activeSubscription.cancel_at_period_end) {
+      return createErrorResponse(409, "This workspace is not scheduled to cancel.")
     }
 
-    const session = await stripe.billingPortal.sessions.create(sessionParams)
+    await stripe.subscriptions.update(activeSubscription.id, {
+      cancel_at_period_end: false,
+    })
+    await synchronizeOrganizationBillingSnapshot(organization.id)
 
-    return NextResponse.json({ url: session.url })
+    return NextResponse.json({ ok: true })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Stripe Billing Portal could not be opened."
+    const message = error instanceof Error ? error.message : "The plan could not be renewed."
     return createErrorResponse(500, message)
   }
 }

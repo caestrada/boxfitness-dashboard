@@ -229,35 +229,41 @@ function getOrganizationIdFromStripeSubscription(subscription: Stripe.Subscripti
 
 function getRelevantStripeSubscription(
   subscriptions: Stripe.Subscription[],
-  organizationId: string
+  organizationId: string,
+  preferredSubscriptionId?: string | null
 ) {
-  const matchingOrganizationSubscriptions = subscriptions.filter(
-    (subscription) => getOrganizationIdFromStripeSubscription(subscription) === organizationId
+  const uniqueSubscriptions = Array.from(
+    new Map(subscriptions.map((subscription) => [subscription.id, subscription])).values()
   )
-  const candidateSubscriptions =
-    matchingOrganizationSubscriptions.length > 0
-      ? matchingOrganizationSubscriptions
-      : subscriptions
 
   return (
-    candidateSubscriptions.find((subscription) =>
-      isManagedStripeSubscriptionStatus(subscription.status)
-    ) ?? candidateSubscriptions[0] ?? null
+    uniqueSubscriptions.sort((left, right) => {
+      const leftOrganizationMatch =
+        getOrganizationIdFromStripeSubscription(left) === organizationId ? 1 : 0
+      const rightOrganizationMatch =
+        getOrganizationIdFromStripeSubscription(right) === organizationId ? 1 : 0
+
+      if (leftOrganizationMatch !== rightOrganizationMatch) {
+        return rightOrganizationMatch - leftOrganizationMatch
+      }
+
+      const leftManagedStatus = isManagedStripeSubscriptionStatus(left.status) ? 1 : 0
+      const rightManagedStatus = isManagedStripeSubscriptionStatus(right.status) ? 1 : 0
+
+      if (leftManagedStatus !== rightManagedStatus) {
+        return rightManagedStatus - leftManagedStatus
+      }
+
+      const leftPreferredMatch = left.id === preferredSubscriptionId ? 1 : 0
+      const rightPreferredMatch = right.id === preferredSubscriptionId ? 1 : 0
+
+      if (leftPreferredMatch !== rightPreferredMatch) {
+        return rightPreferredMatch - leftPreferredMatch
+      }
+
+      return (right.created ?? 0) - (left.created ?? 0)
+    })[0] ?? null
   )
-}
-
-async function getLatestStripeSubscriptionForCustomer(
-  stripe: Stripe,
-  customerId: string,
-  organizationId: string
-) {
-  const subscriptions = await stripe.subscriptions.list({
-    customer: customerId,
-    status: "all",
-    limit: 20,
-  })
-
-  return getRelevantStripeSubscription(subscriptions.data, organizationId)
 }
 
 function getFallbackTierForSnapshot(snapshot: OrganizationBillingSnapshot) {
@@ -338,15 +344,21 @@ export async function synchronizeOrganizationBillingSnapshot(
 
   const stripe = createStripeClient()
   const directSubscription = await getStripeSubscriptionById(stripe, snapshot.stripe_subscription_id)
-  const resolvedSubscription =
-    directSubscription ??
-    (snapshot.stripe_customer_id
-      ? await getLatestStripeSubscriptionForCustomer(
-          stripe,
-          snapshot.stripe_customer_id,
-          snapshot.id
-        )
-      : null)
+  const customerSubscriptions = snapshot.stripe_customer_id
+    ? await stripe.subscriptions.list({
+        customer: snapshot.stripe_customer_id,
+        status: "all",
+        limit: 20,
+      })
+    : null
+  const resolvedSubscription = getRelevantStripeSubscription(
+    [
+      ...(directSubscription ? [directSubscription] : []),
+      ...(customerSubscriptions?.data ?? []),
+    ],
+    snapshot.id,
+    snapshot.stripe_subscription_id
+  )
 
   const synchronizedSnapshot = buildSynchronizedBillingSnapshot(snapshot, resolvedSubscription)
 

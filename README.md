@@ -61,7 +61,14 @@ default recurring price or exactly one active recurring price.
    points at `http://localhost:3000/api/billing/webhooks/stripe` and copy the
    resulting signing secret into `STRIPE_WEBHOOK_SECRET`.
 
-8. Start the dev server:
+8. Configure Stripe Customer Portal for plan changes:
+
+- Enable subscription updates for the Starter and Pro prices.
+- Enable subscription cancellation if Free should remain "no Stripe subscription."
+- Configure your portal so upgrades apply immediately and downgrades or
+  cancellations take effect at period end if that is your intended billing policy.
+
+9. Start the dev server:
 
 ```bash
 npm run dev
@@ -83,8 +90,9 @@ Open `http://localhost:3000`.
 - Organization-aware dashboard shell with a shadcn sidebar, gym switcher, and
   user avatar menu
 - Organization-scoped billing in Account Settings, backed by Stripe Checkout,
-  Stripe Billing Portal, duplicate-checkout guards keyed to the workspace's
-  Stripe customer/subscription, profile-page reconciliation against Stripe, and
+  in-app plan management for renewal and cancellation, duplicate-checkout guards
+  keyed to the workspace's Stripe customer/subscription, scheduled-cancellation
+  renewal from the profile page, profile-page reconciliation against Stripe, and
   Stripe webhook sync into Supabase
 - Starter routes:
   - `/`
@@ -93,8 +101,10 @@ Open `http://localhost:3000`.
   - `/dashboard`
   - `/dashboard/gyms/new`
   - `/dashboard/profile`
+  - `/api/billing/cancel`
   - `/api/billing/checkout`
   - `/api/billing/portal`
+  - `/api/billing/renew`
   - `/api/billing/webhooks/stripe`
 
 ## Learn More

@@ -71,6 +71,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   )
   let activeOrganization = resolveActiveGym(billingOrganizations, requestedGymSlug)
   const billingConfigured = hasStripeBillingEnv() && hasSupabaseAdminEnv()
+  let billingSyncFailed = false
 
   if (
     billingConfigured &&
@@ -100,8 +101,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           ),
         }
       }
-    } catch {
-      // Keep the stored billing snapshot if Stripe sync fails during page render.
+    } catch (error) {
+      billingSyncFailed = true
+      console.error("Failed to synchronize organization billing snapshot.", error)
     }
   }
 
@@ -111,6 +113,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       <OrganizationSubscriptionCard
         billingConfigured={billingConfigured}
+        billingSyncFailed={billingSyncFailed}
         organization={activeOrganization}
       />
 
