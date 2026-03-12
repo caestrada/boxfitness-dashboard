@@ -139,9 +139,8 @@ function getPortalFlowSubscriptionItem(subscription: Stripe.Subscription) {
   return primaryItem
 }
 
-async function buildPortalReturnUrl(organizationSlug: string, billingState?: string) {
+async function buildPortalReturnUrl(billingState?: string) {
   const returnUrl = new URL("/dashboard/profile", await getRequestOrigin())
-  returnUrl.searchParams.set("gym", organizationSlug)
 
   if (billingState) {
     returnUrl.searchParams.set("billing", billingState)
@@ -210,7 +209,7 @@ export async function POST(request: Request) {
   const stripe = createStripeClient()
 
   try {
-    const returnUrl = await buildPortalReturnUrl(organization.slug)
+    const returnUrl = await buildPortalReturnUrl()
     const sessionParams: Stripe.BillingPortal.SessionCreateParams = {
       customer: organization.stripe_customer_id,
       return_url: returnUrl.toString(),
@@ -232,10 +231,7 @@ export async function POST(request: Request) {
       }
 
       if (payload.targetTier === "free") {
-        const completedReturnUrl = await buildPortalReturnUrl(
-          organization.slug,
-          "cancel-scheduled"
-        )
+        const completedReturnUrl = await buildPortalReturnUrl("cancel-scheduled")
 
         sessionParams.flow_data = {
           after_completion: {
@@ -263,7 +259,7 @@ export async function POST(request: Request) {
           return createErrorResponse(409, "This workspace is already on the selected plan.")
         }
 
-        const completedReturnUrl = await buildPortalReturnUrl(organization.slug, "plan-updated")
+        const completedReturnUrl = await buildPortalReturnUrl("plan-updated")
 
         sessionParams.flow_data = {
           after_completion: {

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import {
   BarChart3,
   Building2,
@@ -28,13 +28,13 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import {
-  getDashboardPathWithGym,
-  getRequestedGymSlug,
   type DashboardGym,
 } from "@/lib/dashboard"
 
 interface AppSidebarProps {
+  activeGym: DashboardGym | null
   gyms: DashboardGym[]
+  hasSavedDefaultGym: boolean
 }
 
 const primaryItems = [
@@ -43,29 +43,28 @@ const primaryItems = [
     href: "/dashboard",
     icon: LayoutDashboard,
     matches: ["/dashboard"],
-    preserveGymContext: true,
+  },
+  {
+    title: "Members",
+    href: "/dashboard/members",
+    icon: Users,
+    matches: ["/dashboard/members"],
   },
   {
     title: "Gyms",
     href: "/dashboard/gyms/new",
     icon: Building2,
     matches: ["/dashboard/gyms"],
-    preserveGymContext: false,
   },
   {
     title: "Account Settings",
     href: "/dashboard/profile",
     icon: UserRound,
     matches: ["/dashboard/profile"],
-    preserveGymContext: true,
   },
 ] as const
 
 const roadmapItems = [
-  {
-    title: "Members",
-    icon: Users,
-  },
   {
     title: "Classes",
     icon: CalendarDays,
@@ -80,15 +79,21 @@ const roadmapItems = [
   },
 ] as const
 
-export function AppSidebar({ gyms }: AppSidebarProps) {
+export function AppSidebar({
+  activeGym,
+  gyms,
+  hasSavedDefaultGym,
+}: AppSidebarProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const currentGymSlug = getRequestedGymSlug(searchParams.get("gym"))
 
   return (
     <Sidebar collapsible="offcanvas" variant="inset">
       <SidebarHeader>
-        <GymSwitcher gyms={gyms} />
+        <GymSwitcher
+          activeGym={activeGym}
+          gyms={gyms}
+          hasSavedDefaultGym={hasSavedDefaultGym}
+        />
       </SidebarHeader>
 
       <SidebarContent>
@@ -104,13 +109,7 @@ export function AppSidebar({ gyms }: AppSidebarProps) {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive}>
-                      <Link
-                        href={
-                          item.preserveGymContext
-                            ? getDashboardPathWithGym(item.href, currentGymSlug)
-                            : item.href
-                        }
-                      >
+                      <Link href={item.href}>
                         <item.icon className="size-4" />
                         <span>{item.title}</span>
                       </Link>
@@ -151,8 +150,11 @@ export function AppSidebar({ gyms }: AppSidebarProps) {
               : "Gym shell ready"}
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Keep navigation gym-aware now so members, classes, billing, and analytics can
-            attach to the right workspace later.
+            {activeGym && hasSavedDefaultGym
+              ? `${activeGym.name} is the current default gym for members, billing, and future modules.`
+              : activeGym
+                ? `Using ${activeGym.name} as the fallback workspace until a default gym is saved.`
+              : "Set a default gym in Account Settings once multiple workspaces exist."}
           </p>
         </div>
       </SidebarFooter>

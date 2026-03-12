@@ -24,6 +24,7 @@ const dashboardProfileSchema = z.object({
   email: z.string().nullable().optional(),
   full_name: z.string().nullable().optional(),
   avatar_url: z.string().nullable().optional(),
+  default_organization_id: z.string().nullable().optional(),
 })
 
 export type DashboardGym = z.infer<typeof dashboardGymSchema>
@@ -41,6 +42,7 @@ export interface DashboardUserProfile {
   email: string | null
   fullName: string | null
   avatarUrl: string | null
+  defaultOrganizationId: string | null
 }
 
 function normalizeOptionalString(value: string | null | undefined) {
@@ -111,6 +113,7 @@ export function parseDashboardProfile(
       email: normalizeOptionalString(fallbackEmail),
       fullName: null,
       avatarUrl: null,
+      defaultOrganizationId: null,
     }
   }
 
@@ -118,6 +121,7 @@ export function parseDashboardProfile(
     email: normalizeOptionalString(parsedValue.data.email) ?? normalizeOptionalString(fallbackEmail),
     fullName: normalizeOptionalString(parsedValue.data.full_name),
     avatarUrl: normalizeOptionalString(parsedValue.data.avatar_url),
+    defaultOrganizationId: normalizeOptionalString(parsedValue.data.default_organization_id),
   }
 }
 
@@ -142,33 +146,9 @@ export function getInitials(value: string) {
   return `${words[0][0]}${words[1][0]}`.toUpperCase()
 }
 
-export function getRequestedGymSlug(
-  value: FormDataEntryValue | string | string[] | null | undefined
-) {
-  if (typeof value === "string") {
-    const trimmedValue = value.trim()
-    return trimmedValue.length > 0 ? trimmedValue : null
-  }
-
-  if (Array.isArray(value)) {
-    return getRequestedGymSlug(value[0] ?? null)
-  }
-
-  return null
-}
-
-export function resolveActiveGym<T extends { slug: string }>(
+export function resolveActiveGym<T extends { id: string }>(
   gyms: T[],
-  requestedGymSlug: string | null
+  defaultOrganizationId: string | null
 ) {
-  return gyms.find((gym) => gym.slug === requestedGymSlug) ?? gyms[0] ?? null
-}
-
-export function getDashboardPathWithGym(pathname: string, gymSlug: string | null) {
-  if (!gymSlug) {
-    return pathname
-  }
-
-  const separator = pathname.includes("?") ? "&" : "?"
-  return `${pathname}${separator}gym=${encodeURIComponent(gymSlug)}`
+  return gyms.find((gym) => gym.id === defaultOrganizationId) ?? gyms[0] ?? null
 }

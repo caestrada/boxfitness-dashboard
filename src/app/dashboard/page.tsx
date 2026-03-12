@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import {
   ArrowRight,
   Cloud,
@@ -16,18 +17,12 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  getRequestedGymSlug,
   parseDashboardGyms,
+  parseDashboardProfile,
   resolveActiveGym,
 } from "@/lib/dashboard"
 import { getSupabaseProjectHost } from "@/lib/env"
 import { createClient } from "@/lib/supabase/server"
-
-interface DashboardPageProps {
-  searchParams?: Promise<{
-    gym?: string | string[]
-  }>
-}
 
 const operatingPrinciples: Array<{
   title: string
@@ -51,21 +46,29 @@ const operatingPrinciples: Array<{
   },
 ]
 
-export default async function DashboardPage({
-  searchParams,
-}: DashboardPageProps) {
-  const resolvedSearchParams = searchParams ? await searchParams : undefined
-  const requestedGymSlug = getRequestedGymSlug(resolvedSearchParams?.gym)
-
+export default async function DashboardPage() {
   const supabase = await createClient()
-  const { data: gymRows } = await supabase
-    .from("organizations")
-    .select("id, name, slug")
-    .is("archived_at", null)
-    .order("name")
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth?redirectTo=/dashboard")
+  }
+
+  const [{ data: profileRow }, { data: gymRows }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("email, full_name, avatar_url, default_organization_id")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase.from("organizations").select("id, name, slug").is("archived_at", null).order("name"),
+  ])
 
   const gyms = parseDashboardGyms(gymRows)
-  const activeGym = resolveActiveGym(gyms, requestedGymSlug)
+  const profile = parseDashboardProfile(profileRow, user.email ?? null)
+  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId)
+  const hasSavedDefaultGym = Boolean(profile.defaultOrganizationId)
   const projectHost = getSupabaseProjectHost()
 
   const workspaceFacts = [
@@ -73,8 +76,10 @@ export default async function DashboardPage({
       label: "Current workspace",
       value: activeGym?.name ?? "No gym selected",
       description: activeGym
-        ? `Selected via /dashboard?gym=${activeGym.slug}`
-        : "Create your first gym to activate the workspace switcher.",
+        ? hasSavedDefaultGym
+          ? "Resolved from your saved default gym preference."
+          : "Using the first available gym until you save a default gym in Account Settings."
+        : "Create your first gym to activate the workspace.",
     },
     {
       label: "Gym locations",
@@ -96,7 +101,7 @@ export default async function DashboardPage({
   const moduleRows = [
     {
       title: "Members + memberships",
-      status: "Next slice",
+      status: "Live",
     },
     {
       title: "Classes + schedule",
@@ -189,7 +194,9 @@ export default async function DashboardPage({
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {activeGym
-                    ? `Active route anchor /dashboard?gym=${activeGym.slug}`
+                    ? hasSavedDefaultGym
+                      ? "This workspace is loaded from your saved default gym."
+                      : "This workspace is a fallback until you save a default gym."
                     : "Your first gym becomes the anchor for every future feature route."}
                 </p>
               </div>
@@ -225,7 +232,7 @@ export default async function DashboardPage({
                 <div>
                   <p className="text-sm text-muted-foreground">Route context</p>
                   <p className="mt-1 text-sm font-semibold text-foreground">
-                    {activeGym ? `/dashboard?gym=${activeGym.slug}` : "/dashboard/gyms/new"}
+                    {activeGym ? activeGym.slug : "/dashboard/gyms/new"}
                   </p>
                 </div>
               </div>

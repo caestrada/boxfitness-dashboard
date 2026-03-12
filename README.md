@@ -83,12 +83,15 @@ Open `http://localhost:3000`.
 - Supabase SSR helpers for browser, server, and proxy usage
 - First-pass Supabase schema for `profiles`, `organizations`, and
   `organization_members` with RLS
+- Gym-scoped members directory foundation with `members` plus
+  `member_organizations` tables and RLS-aligned workspace reads
 - TanStack React Query provider and Sonner toaster wiring
 - Light-first default theme with an optional dark mode toggle in profile settings
 - Profile editing supports full-name updates plus avatar uploads and removal,
   backed by a `profile-avatars` Supabase Storage bucket
 - Organization-aware dashboard shell with a shadcn sidebar, gym switcher, and
-  user avatar menu
+  user avatar menu, with the active workspace resolved from the saved default
+  gym on the profile
 - Organization-scoped billing in Account Settings, backed by Stripe Checkout,
   in-app plan management for renewal and cancellation, duplicate-checkout guards
   keyed to the workspace's Stripe customer/subscription, scheduled-cancellation
@@ -99,6 +102,7 @@ Open `http://localhost:3000`.
   - `/auth`
   - `/auth/callback`
   - `/dashboard`
+  - `/dashboard/members`
   - `/dashboard/gyms/new`
   - `/dashboard/profile`
   - `/api/billing/cancel`

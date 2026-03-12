@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 const workspacePreviewRows = [
   {
     label: "Route anchor",
-    value: "/dashboard?gym=box-fitness-downtown",
+    value: "Default gym preference",
   },
   {
     label: "Initial access",

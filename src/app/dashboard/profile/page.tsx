@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 
+import { DefaultGymCard } from "@/components/dashboard/default-gym-card"
 import { OrganizationSubscriptionCard } from "@/components/dashboard/organization-subscription-card"
 import { ProfileCard } from "@/components/dashboard/profile-card"
 import { ThemePreferenceCard } from "@/components/dashboard/theme-preference-card"
@@ -8,19 +9,12 @@ import {
   synchronizeOrganizationBillingSnapshot,
 } from "@/lib/billing-server"
 import {
-  getRequestedGymSlug,
   parseDashboardBillingOrganizations,
   parseDashboardProfile,
   resolveActiveGym,
 } from "@/lib/dashboard"
 import { hasSupabaseAdminEnv } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
-
-interface ProfilePageProps {
-  searchParams?: Promise<{
-    gym?: string | string[]
-  }>
-}
 
 function normalizeOptionalString(value: string | null | undefined) {
   if (typeof value !== "string") {
@@ -31,9 +25,7 @@ function normalizeOptionalString(value: string | null | undefined) {
   return trimmedValue.length > 0 ? trimmedValue : null
 }
 
-export default async function ProfilePage({ searchParams }: ProfilePageProps) {
-  const resolvedSearchParams = searchParams ? await searchParams : undefined
-  const requestedGymSlug = getRequestedGymSlug(resolvedSearchParams?.gym)
+export default async function ProfilePage() {
   const supabase = await createClient()
   const {
     data: { user },
@@ -47,7 +39,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     await Promise.all([
       supabase
         .from("profiles")
-        .select("email, full_name, avatar_url")
+        .select("email, full_name, avatar_url, default_organization_id")
         .eq("id", user.id)
         .maybeSingle(),
       supabase
@@ -69,7 +61,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     organizationRows,
     membershipRows
   )
-  let activeOrganization = resolveActiveGym(billingOrganizations, requestedGymSlug)
+  let activeOrganization = resolveActiveGym(
+    billingOrganizations,
+    profile.defaultOrganizationId
+  )
   const billingConfigured = hasStripeBillingEnv() && hasSupabaseAdminEnv()
   let billingSyncFailed = false
 
@@ -110,6 +105,11 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
       <ProfileCard user={profile} />
+
+      <DefaultGymCard
+        defaultOrganizationId={profile.defaultOrganizationId}
+        gyms={billingOrganizations}
+      />
 
       <OrganizationSubscriptionCard
         billingConfigured={billingConfigured}

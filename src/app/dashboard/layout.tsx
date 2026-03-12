@@ -17,6 +17,7 @@ import { hasSupabaseEnv } from "@/lib/env"
 import {
   parseDashboardGyms,
   parseDashboardProfile,
+  resolveActiveGym,
 } from "@/lib/dashboard"
 import { createClient } from "@/lib/supabase/server"
 
@@ -45,7 +46,7 @@ export default async function DashboardLayout({
   const [profileResult, gymsResult] = await Promise.all([
     supabase
       .from("profiles")
-      .select("email, full_name, avatar_url")
+      .select("email, full_name, avatar_url, default_organization_id")
       .eq("id", user.id)
       .maybeSingle(),
     supabase.from("organizations").select("id, name, slug").is("archived_at", null).order("name"),
@@ -53,10 +54,15 @@ export default async function DashboardLayout({
 
   const profile = parseDashboardProfile(profileResult.data, user.email ?? null)
   const gyms = parseDashboardGyms(gymsResult.data)
+  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId)
 
   return (
     <SidebarProvider defaultOpen>
-      <AppSidebar gyms={gyms} />
+      <AppSidebar
+        activeGym={activeGym}
+        gyms={gyms}
+        hasSavedDefaultGym={Boolean(profile.defaultOrganizationId)}
+      />
 
       <SidebarInset className="px-3 pb-3 pt-3 md:px-4 md:pb-4 md:pt-4">
         <div className="app-frame relative flex min-h-[calc(100svh-1.5rem)] flex-1 flex-col overflow-hidden md:min-h-[calc(100svh-2rem)]">

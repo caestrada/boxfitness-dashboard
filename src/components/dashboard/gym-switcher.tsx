@@ -1,9 +1,13 @@
 "use client"
 
+import { startTransition, useActionState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
-import { Check, ChevronsUpDown, Dumbbell, PlusCircle } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Check, ChevronsUpDown, Dumbbell, LoaderCircle, PlusCircle } from "lucide-react"
+import { toast } from "sonner"
 
+import { updateDefaultGymAction } from "@/app/dashboard/actions"
+import { initialDefaultGymActionState } from "@/app/dashboard/default-gym-action-state"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,23 +22,50 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {
-  getDashboardPathWithGym,
-  getRequestedGymSlug,
-  resolveActiveGym,
   type DashboardGym,
 } from "@/lib/dashboard"
 import { cn } from "@/lib/utils"
 
 interface GymSwitcherProps {
+  activeGym: DashboardGym | null
   gyms: DashboardGym[]
+  hasSavedDefaultGym: boolean
 }
 
-export function GymSwitcher({ gyms }: GymSwitcherProps) {
+export function GymSwitcher({
+  activeGym,
+  gyms,
+  hasSavedDefaultGym,
+}: GymSwitcherProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const requestedGymSlug = getRequestedGymSlug(searchParams.get("gym"))
-  const activeGym = resolveActiveGym(gyms, requestedGymSlug)
+  const router = useRouter()
   const routePath = pathname.startsWith("/dashboard/gyms/new") ? "/dashboard" : pathname
+  const [defaultGymState, defaultGymFormAction, defaultGymPending] = useActionState(
+    updateDefaultGymAction,
+    initialDefaultGymActionState
+  )
+  const lastHandledSubmissionIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!defaultGymState.message || !defaultGymState.submissionId) {
+      return
+    }
+
+    if (lastHandledSubmissionIdRef.current === defaultGymState.submissionId) {
+      return
+    }
+
+    lastHandledSubmissionIdRef.current = defaultGymState.submissionId
+
+    if (defaultGymState.status === "error") {
+      toast.error(defaultGymState.message)
+      return
+    }
+
+    startTransition(() => {
+      router.refresh()
+    })
+  }, [defaultGymState.message, defaultGymState.status, defaultGymState.submissionId, router])
 
   return (
     <SidebarMenu>
@@ -57,7 +88,11 @@ export function GymSwitcher({ gyms }: GymSwitcherProps) {
                   {activeGym?.name ?? "No gyms yet"}
                 </span>
                 <span className="block text-xs leading-[1.35] text-muted-foreground">
-                  {activeGym ? `${gyms.length} connected gyms` : "Create your first gym"}
+                  {activeGym
+                    ? hasSavedDefaultGym
+                      ? `${gyms.length} connected gyms`
+                      : "Choose a saved default gym"
+                    : "Create your first gym"}
                 </span>
               </div>
 
@@ -81,25 +116,41 @@ export function GymSwitcher({ gyms }: GymSwitcherProps) {
 
                 return (
                   <DropdownMenuItem asChild key={gym.id}>
-                    <Link
-                      className="flex items-center gap-3"
-                      href={getDashboardPathWithGym(routePath, gym.slug)}
-                    >
-                      <div
-                        className={cn(
-                          "surface-control flex size-9 items-center justify-center rounded-[1rem]",
-                          isActive &&
-                            "border-primary/25 bg-primary/10 text-primary hover:bg-primary/10"
-                        )}
+                    <form action={defaultGymFormAction} className="w-full">
+                      <input name="organizationId" type="hidden" value={gym.id} />
+                      <button
+                        className="flex w-full items-center gap-3"
+                        disabled={defaultGymPending && isActive}
+                        type="submit"
                       >
-                        {isActive ? <Check className="size-4" /> : <Dumbbell className="size-4" />}
-                      </div>
+                        <div
+                          className={cn(
+                            "surface-control flex size-9 items-center justify-center rounded-[1rem]",
+                            isActive &&
+                              "border-primary/25 bg-primary/10 text-primary hover:bg-primary/10"
+                          )}
+                        >
+                          {defaultGymPending && isActive ? (
+                            <LoaderCircle className="size-4 animate-spin" />
+                          ) : isActive ? (
+                            <Check className="size-4" />
+                          ) : (
+                            <Dumbbell className="size-4" />
+                          )}
+                        </div>
 
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-foreground">{gym.name}</p>
-                        <p className="truncate text-xs text-muted-foreground">/{gym.slug}</p>
-                      </div>
-                    </Link>
+                        <div className="min-w-0 flex-1 text-left">
+                          <p className="truncate font-medium text-foreground">{gym.name}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {isActive
+                              ? hasSavedDefaultGym
+                                ? "Current default gym"
+                                : "Current fallback workspace"
+                              : `Set as default and refresh ${routePath}`}
+                          </p>
+                        </div>
+                      </button>
+                    </form>
                   </DropdownMenuItem>
                 )
               })

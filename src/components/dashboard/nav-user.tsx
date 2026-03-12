@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 import { LogOut } from "lucide-react"
 
 import { signOutAction } from "@/app/auth/actions"
@@ -15,9 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  getDashboardPathWithGym,
   getInitials,
-  getRequestedGymSlug,
   getUserDisplayName,
   type DashboardUserProfile,
 } from "@/lib/dashboard"
@@ -27,10 +24,8 @@ interface NavUserProps {
 }
 
 export function NavUser({ user }: NavUserProps) {
-  const searchParams = useSearchParams()
   const displayName = getUserDisplayName(user)
   const initials = getInitials(displayName)
-  const currentGymSlug = getRequestedGymSlug(searchParams.get("gym"))
 
   return (
     <DropdownMenu>
@@ -66,9 +61,7 @@ export function NavUser({ user }: NavUserProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href={getDashboardPathWithGym("/dashboard/profile", currentGymSlug)}>
-            Account Settings
-          </Link>
+          <Link href="/dashboard/profile">Account Settings</Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />

@@ -287,11 +287,9 @@ export async function POST(request: Request) {
 
   const origin = await getRequestOrigin()
   const successUrl = new URL("/dashboard/profile", origin)
-  successUrl.searchParams.set("gym", organization.slug)
   successUrl.searchParams.set("billing", "success")
 
   const cancelUrl = new URL("/dashboard/profile", origin)
-  cancelUrl.searchParams.set("gym", organization.slug)
   cancelUrl.searchParams.set("billing", "canceled")
 
   try {
