@@ -394,6 +394,14 @@ export function OrganizationSubscriptionCard({
   function renderPlanAction(tierKey: BillingTierKey) {
     const isCurrentPlan = tierKey === currentTier
 
+    if (isCurrentPlan) {
+      return (
+        <Button className="w-full" disabled size="sm" variant="outline">
+          Your current plan
+        </Button>
+      )
+    }
+
     if (!canManageBilling) {
       return (
         <Button className="w-full" disabled size="sm" variant="outline">
@@ -406,14 +414,6 @@ export function OrganizationSubscriptionCard({
       return (
         <Button className="w-full" disabled size="sm" variant="outline">
           Stripe setup required
-        </Button>
-      )
-    }
-
-    if (isCurrentPlan) {
-      return (
-        <Button className="w-full" disabled size="sm" variant="outline">
-          Your current plan
         </Button>
       )
     }
@@ -688,11 +688,18 @@ export function OrganizationSubscriptionCard({
                 <div
                   key={tierKey}
                   className={cn(
-                    "flex flex-col rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[0_20px_48px_-36px_rgba(15,23,42,0.18)]",
-                    isCurrentPlan &&
-                      "border-border/90 bg-secondary/35"
+                    "relative flex flex-col rounded-[1.75rem] border border-border/70 bg-card p-6 pt-8 shadow-[0_20px_48px_-36px_rgba(15,23,42,0.18)]",
+                    isCurrentPlan && "border-primary/40 bg-primary/[0.06]"
                   )}
                 >
+                  {isCurrentPlan ? (
+                    <div className="pointer-events-none absolute inset-x-0 top-0 flex -translate-y-1/2 justify-center">
+                      <div className="rounded-full border border-primary/25 bg-card px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-primary shadow-sm">
+                        Current plan
+                      </div>
+                    </div>
+                  ) : null}
+
                   <div>
                     <p className="text-[2rem] font-semibold tracking-[-0.04em] text-foreground">
                       {plan.name}
@@ -706,12 +713,11 @@ export function OrganizationSubscriptionCard({
                         USD / month
                       </span>
                     </div>
-                    <p className="mt-4 text-base leading-7 text-foreground/85">
+                    <div className="mt-6">{renderPlanAction(tierKey)}</div>
+                    <p className="mt-4 min-h-[6rem] text-base leading-7 text-foreground/85">
                       {plan.description}
                     </p>
                   </div>
-
-                  <div className="mt-6">{renderPlanAction(tierKey)}</div>
 
                   <div className="mt-7 space-y-3">
                     {plan.features.map((feature) => (
@@ -726,13 +732,6 @@ export function OrganizationSubscriptionCard({
             })}
           </div>
 
-          {organization && requiresPortalForPlanChanges ? (
-            <div className="rounded-[1.5rem] border border-border/70 bg-secondary/45 p-4 text-sm leading-7 text-muted-foreground">
-              Paid plan changes open a Stripe confirmation page for the selected plan so
-              the workspace never ends up with duplicate subscriptions.
-            </div>
-          ) : null}
-
           {!organization ? (
             <div className="rounded-[1.5rem] border border-border/70 bg-secondary/45 p-4 text-sm leading-7 text-muted-foreground">
               Select a workspace first to subscribe.
@@ -745,14 +744,6 @@ export function OrganizationSubscriptionCard({
             </div>
           ) : null}
 
-          <div className="flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-secondary/45 p-4 text-sm leading-7 text-muted-foreground">
-            <ShieldAlert className="mt-1 size-4 shrink-0 text-primary" />
-            <p>
-              Free workspaces can start Stripe Checkout here. Once a paid plan exists,
-              plan switches are confirmed in Stripe while renewals and cancellations can
-              be managed directly from this subscription screen.
-            </p>
-          </div>
         </DialogContent>
       </Dialog>
 
