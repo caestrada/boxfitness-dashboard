@@ -614,25 +614,6 @@ export function OrganizationSubscriptionCard({
                 </div>
               </div>
 
-              {currentTier !== "free" && !isScheduledCancellation ? (
-                <div className="app-subpanel p-4">
-                  <p className="text-sm leading-7 text-muted-foreground">
-                    {`Thanks for subscribing to ${currentPlan.name} Plan. ${currentPlan.features[0]}.`}
-                  </p>
-                </div>
-              ) : null}
-
-              <div className="grid gap-3 md:grid-cols-2">
-                {currentPlan.features.slice(0, 4).map((feature) => (
-                  <div key={feature} className="app-subpanel flex gap-3 p-4">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Check className="size-4" />
-                    </div>
-                    <p className="text-sm leading-6 text-muted-foreground">{feature}</p>
-                  </div>
-                ))}
-              </div>
-
               {!canManageBilling ? (
                 <div className="rounded-[1.5rem] border border-amber-500/20 bg-amber-500/10 p-4 text-sm leading-7 text-amber-800 dark:text-amber-200">
                   Only workspace owners can change plans or open Stripe billing.
