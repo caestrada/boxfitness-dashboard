@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { ArrowRight, Plus, Users } from "lucide-react"
+import { ArrowRight, Plus } from "lucide-react"
 
 import { columns } from "@/app/dashboard/members/columns"
 import { DataTable } from "@/app/dashboard/members/data-table"
@@ -19,13 +19,6 @@ import {
 } from "@/lib/dashboard"
 import { parseMemberDirectoryRows } from "@/lib/members"
 import { createClient } from "@/lib/supabase/server"
-
-function formatCurrency(valueInCents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(valueInCents / 100)
-}
 
 function getMembersTableErrorMessage(message: string) {
   if (message.includes("member_organizations") || message.includes("members")) {
@@ -57,7 +50,6 @@ export default async function MembersPage() {
   const gyms = parseDashboardGyms(gymRows)
   const profile = parseDashboardProfile(profileRow, user.email ?? null)
   const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId)
-  const hasSavedDefaultGym = Boolean(profile.defaultOrganizationId)
   let membersError: string | null = null
   let memberRows = [] as ReturnType<typeof parseMemberDirectoryRows>
 
@@ -77,12 +69,6 @@ export default async function MembersPage() {
     }
   }
 
-  const activeMemberCount = memberRows.filter((row) => row.status === "active").length
-  const leadCount = memberRows.filter((row) => row.status === "lead").length
-  const outstandingBalanceCents = memberRows.reduce(
-    (total, row) => total + row.outstandingBalanceCents,
-    0
-  )
   const availablePlans = Array.from(
     new Set(
       memberRows
@@ -93,73 +79,6 @@ export default async function MembersPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
-      <section className="app-panel relative overflow-hidden p-6 md:p-8">
-        <div
-          aria-hidden="true"
-          className="absolute -right-10 top-2 h-36 w-36 rounded-full bg-primary/12 blur-3xl"
-        />
-
-        <div className="relative space-y-6">
-          <div className="space-y-3">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                <Users className="size-4" />
-                Members
-              </div>
-              {activeGym ? (
-                <Button asChild>
-                  <Link href="/dashboard/members/new">
-                    <Plus className="size-4" />
-                    Add Member
-                  </Link>
-                </Button>
-              ) : null}
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance md:text-5xl">
-                {activeGym ? `${activeGym.name} members` : "Create a gym before loading members"}
-              </h1>
-              <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base">
-                {activeGym
-                  ? hasSavedDefaultGym
-                    ? "This datatable is scoped to your current default gym."
-                    : "This datatable is using the fallback gym until a default gym is saved in Account Settings."
-                  : "The members page activates once a gym workspace exists and can be loaded as the active workspace."}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="app-subpanel p-4">
-              <p className="section-label">Current gym</p>
-              <p className="mt-3 text-lg font-semibold text-foreground">
-                {activeGym?.name ?? "No gym selected"}
-              </p>
-            </div>
-
-            <div className="app-subpanel p-4">
-              <p className="section-label">Active members</p>
-              <p className="mt-3 text-lg font-semibold text-foreground">{activeMemberCount}</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {activeGym
-                  ? `${leadCount} leads currently attached to this gym`
-                  : "Leads and active members are tracked per gym."}
-              </p>
-            </div>
-
-            <div className="app-subpanel p-4">
-              <p className="section-label">Outstanding balance</p>
-              <p className="mt-3 text-lg font-semibold text-foreground">
-                {formatCurrency(outstandingBalanceCents)}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Open balances shown here are limited to the active gym.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {!activeGym ? (
         <Card>
           <CardHeader>
@@ -187,12 +106,20 @@ export default async function MembersPage() {
         </Card>
       ) : (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Members datatable</CardTitle>
-            <CardDescription className="leading-7">
-              All members for the active gym appear here with search, filters,
-              sorting, and pagination.
-            </CardDescription>
+          <CardHeader className="relative gap-4 sm:pr-40">
+            <div className="space-y-2">
+              <CardTitle className="text-2xl">Member Directory</CardTitle>
+              <CardDescription className="leading-7">
+                All members for the active gym appear here with search, filters,
+                sorting, and pagination.
+              </CardDescription>
+            </div>
+            <Button asChild className="self-start sm:absolute sm:top-6 sm:right-6">
+              <Link href="/dashboard/members/new">
+                <Plus className="size-4" />
+                Add Member
+              </Link>
+            </Button>
           </CardHeader>
           <CardContent>
             <DataTable
