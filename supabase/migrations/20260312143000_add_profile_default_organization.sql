@@ -47,7 +47,7 @@ set default_organization_id = default_membership.organization_id
 from (
   select
     organization_member.user_id,
-    min(organization_member.organization_id) as organization_id
+    (array_agg(organization_member.organization_id order by organization_member.organization_id))[1] as organization_id
   from public.organization_members as organization_member
   where organization_member.status = 'active'
   group by organization_member.user_id

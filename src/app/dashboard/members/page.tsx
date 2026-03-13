@@ -1,8 +1,9 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { ArrowRight, Building2, ShieldCheck, Users } from "lucide-react"
+import { ArrowRight, Plus, Users } from "lucide-react"
 
-import { MembersTable } from "@/components/dashboard/members-table"
+import { columns } from "@/app/dashboard/members/columns"
+import { DataTable } from "@/app/dashboard/members/data-table"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -82,123 +83,81 @@ export default async function MembersPage() {
     (total, row) => total + row.outstandingBalanceCents,
     0
   )
+  const availablePlans = Array.from(
+    new Set(
+      memberRows
+        .map((row) => row.membershipPlan)
+        .filter((value): value is string => Boolean(value))
+    )
+  ).sort((left, right) => left.localeCompare(right))
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
-      <section className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-        <div className="app-panel relative overflow-hidden p-8 md:p-10">
-          <div
-            aria-hidden="true"
-            className="absolute -right-10 top-2 h-36 w-36 rounded-full bg-primary/12 blur-3xl"
-          />
+      <section className="app-panel relative overflow-hidden p-6 md:p-8">
+        <div
+          aria-hidden="true"
+          className="absolute -right-10 top-2 h-36 w-36 rounded-full bg-primary/12 blur-3xl"
+        />
 
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-              <Users className="size-4" />
-              Gym-scoped members
+        <div className="relative space-y-6">
+          <div className="space-y-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                <Users className="size-4" />
+                Members
+              </div>
+              {activeGym ? (
+                <Button asChild>
+                  <Link href="/dashboard/members/new">
+                    <Plus className="size-4" />
+                    Add Member
+                  </Link>
+                </Button>
+              ) : null}
             </div>
-
-            <div className="mt-6 max-w-3xl space-y-4">
-              <h1 className="text-4xl font-semibold tracking-[-0.04em] text-balance md:text-6xl">
-                {activeGym
-                  ? `${activeGym.name} member directory`
-                  : "Create a gym before loading members"}
+            <div className="space-y-2">
+              <h1 className="text-3xl font-semibold tracking-[-0.04em] text-balance md:text-5xl">
+                {activeGym ? `${activeGym.name} members` : "Create a gym before loading members"}
               </h1>
-              <p className="max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
+              <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base">
                 {activeGym
-                  ? "Members stay attached to the active gym workspace so staff, billing, and reporting all read from the same organization boundary."
-                  : "The members module activates once a gym workspace exists and can be selected from the switcher."}
+                  ? hasSavedDefaultGym
+                    ? "This datatable is scoped to your current default gym."
+                    : "This datatable is using the fallback gym until a default gym is saved in Account Settings."
+                  : "The members page activates once a gym workspace exists and can be loaded as the active workspace."}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="app-subpanel p-4">
+              <p className="section-label">Current gym</p>
+              <p className="mt-3 text-lg font-semibold text-foreground">
+                {activeGym?.name ?? "No gym selected"}
               </p>
             </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="app-subpanel p-4">
-                <p className="section-label">Current gym</p>
-                <p className="mt-3 text-lg font-semibold text-foreground">
-                  {activeGym?.name ?? "No gym selected"}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {activeGym
-                    ? hasSavedDefaultGym
-                      ? "Directory resolved from your saved default gym."
-                      : "Directory currently uses the fallback workspace until a default gym is saved."
-                    : "Create and set a default gym to scope members correctly."}
-                </p>
-              </div>
+            <div className="app-subpanel p-4">
+              <p className="section-label">Active members</p>
+              <p className="mt-3 text-lg font-semibold text-foreground">{activeMemberCount}</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {activeGym
+                  ? `${leadCount} leads currently attached to this gym`
+                  : "Leads and active members are tracked per gym."}
+              </p>
+            </div>
 
-              <div className="app-subpanel p-4">
-                <p className="section-label">Active members</p>
-                <p className="mt-3 text-lg font-semibold text-foreground">{activeMemberCount}</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {activeGym
-                    ? `${leadCount} leads waiting in this gym pipeline`
-                    : "Leads and active members are tracked per gym."}
-                </p>
-              </div>
-
-              <div className="app-subpanel p-4">
-                <p className="section-label">Outstanding balance</p>
-                <p className="mt-3 text-lg font-semibold text-foreground">
-                  {formatCurrency(outstandingBalanceCents)}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Open balances shown here are limited to the selected gym.
-                </p>
-              </div>
+            <div className="app-subpanel p-4">
+              <p className="section-label">Outstanding balance</p>
+              <p className="mt-3 text-lg font-semibold text-foreground">
+                {formatCurrency(outstandingBalanceCents)}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Open balances shown here are limited to the active gym.
+              </p>
             </div>
           </div>
         </div>
-
-        <Card className="relative overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-2xl">Boundary rules</CardTitle>
-            <CardDescription className="leading-7">
-              This first pass keeps the members directory aligned with the
-              organization workspace model already used across the dashboard shell.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="app-subpanel flex gap-4 p-4">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Building2 className="size-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Gym-first by default</p>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Owners can belong to multiple gyms, but the members table stays scoped
-                  to the active gym to avoid mixing locations.
-                </p>
-              </div>
-            </div>
-
-            <div className="app-subpanel flex gap-4 p-4">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Users className="size-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Shared person record</p>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  The schema separates a member person record from the
-                  organization-specific membership so future multi-gym rollups stay
-                  possible without changing the default UX.
-                </p>
-              </div>
-            </div>
-
-            <div className="app-subpanel flex gap-4 p-4">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <ShieldCheck className="size-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">RLS stays aligned</p>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Reads flow through the same organization membership checks already used
-                  elsewhere in the dashboard.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </section>
 
       {!activeGym ? (
@@ -231,46 +190,30 @@ export default async function MembersPage() {
           <CardHeader>
             <CardTitle className="text-2xl">Members datatable</CardTitle>
             <CardDescription className="leading-7">
-              Search and filter within the active gym workspace. A future owner rollup
-              can sit above this without changing the default member boundary.
+              All members for the active gym appear here with search, filters,
+              sorting, and pagination.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <MembersTable gymName={activeGym.name} rows={memberRows} />
+            <DataTable
+              availablePlans={availablePlans}
+              columns={columns}
+              data={memberRows}
+              emptyDescription={
+                memberRows.length === 0
+                  ? "This directory is scoped to the active gym workspace. Once member records are created for this gym, they will appear here."
+                  : "Adjust the search, status, or plan filters to widen the directory."
+              }
+              emptyTitle={
+                memberRows.length === 0
+                  ? `No members have been added to ${activeGym.name} yet.`
+                  : "No members match the current filters."
+              }
+              gymName={activeGym.name}
+            />
           </CardContent>
         </Card>
       )}
-
-      {activeGym ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Next build steps</CardTitle>
-            <CardDescription className="leading-7">
-              The directory is now scoped to the selected gym. The next slices should
-              build on that same contract.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="app-subpanel p-4 text-sm leading-7 text-muted-foreground">
-              Add member create and edit flows that insert a person record plus an
-              organization membership record in one transaction.
-            </div>
-            <div className="app-subpanel p-4 text-sm leading-7 text-muted-foreground">
-              Attach attendance and visit history to the organization membership row so
-              last-visit reporting stays gym-aware.
-            </div>
-            <div className="app-subpanel p-4 text-sm leading-7 text-muted-foreground">
-              Add an owner-level all-gyms rollup later as an explicit reporting filter,
-              not the default members source of truth.
-            </div>
-            <div className="pt-2">
-              <Button asChild variant="outline">
-                <Link href="/dashboard">Back to dashboard</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
     </div>
   )
 }
