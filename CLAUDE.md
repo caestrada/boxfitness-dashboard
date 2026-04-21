@@ -16,7 +16,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev         # Next.js dev server on http://localhost:3000
 npm run build       # Production build
 npm run start       # Run the production build
-npm run lint        # ESLint (eslint-config-next + TS config)
+npm run lint        # Biome: lint + format check + import sort
+npm run lint -- --fix          # apply safe autofixes
+npm run lint -- --fix --unsafe # include unsafe autofixes (review before committing)
+npm run format      # biome format --write (format-only, writes to disk)
 npm run typecheck   # tsc --noEmit
 ```
 

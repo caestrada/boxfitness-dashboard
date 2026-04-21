@@ -124,6 +124,46 @@ Primary references for the foundation:
 - [Supabase SSR for Next.js](https://supabase.com/docs/guides/auth/server-side/nextjs)
 - [shadcn/ui docs](https://ui.shadcn.com/docs)
 
+## Linting
+
+Lint, format, and import sorting are unified under [Biome](https://biomejs.dev/). Run the default project checks with:
+
+```bash
+npm run lint
+```
+
+Apply safe automatic fixes with:
+
+```bash
+npm run lint -- --fix
+```
+
+Use the safe fix command when you want Biome to apply formatting, import sorting, and fixes it considers low risk.
+
+Apply a broader set of fixes, including unsafe fixes, with:
+
+```bash
+npm run lint -- --fix --unsafe
+```
+
+Use the `--unsafe` variant when you want Biome to make more aggressive changes that may alter behavior and should be reviewed before committing.
+
+## Formatting
+
+Run Biome's formatter directly with:
+
+```bash
+npx biome format
+```
+
+Use this when you want to check formatting without writing changes to disk.
+
+Write formatting changes to disk with:
+
+```bash
+npm run format
+```
+
 ## Validation
 
 ```bash
