@@ -1,76 +1,79 @@
-"use client"
+"use client";
 
-import { useActionState } from "react"
-import { CircleAlert } from "lucide-react"
+import { CircleAlert } from "lucide-react";
+import { useActionState } from "react";
 
-import { createMemberAction, updateMemberAction } from "@/app/dashboard/members/actions"
+import {
+  createMemberAction,
+  updateMemberAction,
+} from "@/app/dashboard/members/actions";
 import {
   initialMemberActionState,
   type MemberActionState,
-} from "@/app/dashboard/members/member-action-state"
-import { SubmitButton } from "@/components/auth/submit-button"
+} from "@/app/dashboard/members/member-action-state";
+import { SubmitButton } from "@/components/auth/submit-button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 const memberActionButtonClassName =
-  "bg-primary text-primary-foreground shadow-[0_18px_36px_-24px_rgba(255,107,44,0.7)] hover:bg-primary/90"
+  "bg-primary text-primary-foreground shadow-[0_18px_36px_-24px_rgba(255,107,44,0.7)] hover:bg-primary/90";
 
 export interface MemberFormValues {
-  email: string
-  fullName: string
-  joinedAt: string
-  membershipPlan: string
-  outstandingBalance: string
-  phone: string
-  status: "lead" | "active" | "frozen" | "inactive"
+  email: string;
+  fullName: string;
+  joinedAt: string;
+  membershipPlan: string;
+  outstandingBalance: string;
+  phone: string;
+  status: "lead" | "active" | "frozen" | "inactive";
 }
 
 interface BaseMemberFormProps {
-  organizationId: string
-  submitLabel: string
-  pendingLabel: string
-  title: string
-  description: string
-  initialValues: MemberFormValues
+  organizationId: string;
+  submitLabel: string;
+  pendingLabel: string;
+  title: string;
+  description: string;
+  initialValues: MemberFormValues;
   hiddenFields?: Array<{
-    name: string
-    value: string
-  }>
+    name: string;
+    value: string;
+  }>;
   action: (
     state: MemberActionState,
-    formData: FormData
-  ) => Promise<MemberActionState>
+    formData: FormData,
+  ) => Promise<MemberActionState>;
 }
 
 interface AddMemberFormProps {
-  organizationId: string
-  organizationName: string
+  organizationId: string;
+  organizationName: string;
 }
 
 interface EditMemberFormProps {
-  organizationId: string
-  organizationName: string
-  memberId: string
-  membershipId: string
-  initialValues: MemberFormValues
+  organizationId: string;
+  organizationName: string;
+  memberId: string;
+  membershipId: string;
+  initialValues: MemberFormValues;
 }
 
 function todayDateValue() {
-  return new Date().toISOString().slice(0, 10)
+  return new Date().toISOString().slice(0, 10);
 }
 
 function MemberForm({
@@ -83,19 +86,26 @@ function MemberForm({
   submitLabel,
   title,
 }: BaseMemberFormProps) {
-  const [state, formAction] = useActionState(action, initialMemberActionState)
+  const [state, formAction] = useActionState(action, initialMemberActionState);
 
   return (
     <Card className="border-border/70 bg-card">
       <CardHeader className="space-y-3">
         <CardTitle className="text-[1.75rem]">{title}</CardTitle>
-        <CardDescription className="max-w-2xl leading-7">{description}</CardDescription>
+        <CardDescription className="max-w-2xl leading-7">
+          {description}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-6">
           <input name="organizationId" type="hidden" value={organizationId} />
           {hiddenFields?.map((field) => (
-            <input key={field.name} name={field.name} type="hidden" value={field.value} />
+            <input
+              key={field.name}
+              name={field.name}
+              type="hidden"
+              value={field.value}
+            />
           ))}
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -110,7 +120,9 @@ function MemberForm({
                 required
               />
               {state.fieldErrors?.fullName ? (
-                <p className="text-sm text-destructive">{state.fieldErrors.fullName}</p>
+                <p className="text-sm text-destructive">
+                  {state.fieldErrors.fullName}
+                </p>
               ) : (
                 <p className="text-sm text-muted-foreground">
                   This is the primary name shown across the members directory.
@@ -129,7 +141,9 @@ function MemberForm({
                 type="email"
               />
               {state.fieldErrors?.email ? (
-                <p className="text-sm text-destructive">{state.fieldErrors.email}</p>
+                <p className="text-sm text-destructive">
+                  {state.fieldErrors.email}
+                </p>
               ) : null}
             </div>
 
@@ -144,7 +158,9 @@ function MemberForm({
                 type="tel"
               />
               {state.fieldErrors?.phone ? (
-                <p className="text-sm text-destructive">{state.fieldErrors.phone}</p>
+                <p className="text-sm text-destructive">
+                  {state.fieldErrors.phone}
+                </p>
               ) : null}
             </div>
 
@@ -166,7 +182,9 @@ function MemberForm({
                 </SelectContent>
               </Select>
               {state.fieldErrors?.status ? (
-                <p className="text-sm text-destructive">{state.fieldErrors.status}</p>
+                <p className="text-sm text-destructive">
+                  {state.fieldErrors.status}
+                </p>
               ) : null}
             </div>
 
@@ -200,12 +218,16 @@ function MemberForm({
                 type="date"
               />
               {state.fieldErrors?.joinedAt ? (
-                <p className="text-sm text-destructive">{state.fieldErrors.joinedAt}</p>
+                <p className="text-sm text-destructive">
+                  {state.fieldErrors.joinedAt}
+                </p>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="member-outstanding-balance">Outstanding balance</Label>
+              <Label htmlFor="member-outstanding-balance">
+                Outstanding balance
+              </Label>
               <Input
                 aria-invalid={Boolean(state.fieldErrors?.outstandingBalance)}
                 defaultValue={initialValues.outstandingBalance}
@@ -242,7 +264,7 @@ function MemberForm({
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function AddMemberForm({
@@ -267,7 +289,7 @@ export function AddMemberForm({
       submitLabel="Create member"
       title="New member details"
     />
-  )
+  );
 }
 
 export function EditMemberForm({
@@ -291,5 +313,5 @@ export function EditMemberForm({
       submitLabel="Save changes"
       title="Edit member details"
     />
-  )
+  );
 }

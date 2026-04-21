@@ -1,116 +1,133 @@
-import Stripe from "stripe"
-import { NextResponse } from "next/server"
-import { z } from "zod/v3"
-
+import { NextResponse } from "next/server";
+import type Stripe from "stripe";
+import { z } from "zod/v3";
+import { normalizeBillingSubscriptionStatus } from "@/lib/billing";
 import {
   createStripeClient,
   getBillingTierFromStripeSubscription,
   getStripePriceIdForTier,
   hasStripeBillingEnv,
   MISSING_STRIPE_BILLING_ENV_MESSAGE,
-} from "@/lib/billing-server"
-import { normalizeBillingSubscriptionStatus } from "@/lib/billing"
+} from "@/lib/billing-server";
 import {
   createAdminClient,
   hasSupabaseAdminEnv,
   MISSING_SUPABASE_SERVICE_ROLE_KEY_MESSAGE,
-} from "@/lib/supabase/admin"
-import { getRequestOrigin } from "@/lib/url"
-import { createClient } from "@/lib/supabase/server"
+} from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { getRequestOrigin } from "@/lib/url";
 
-export const runtime = "nodejs"
+export const runtime = "nodejs";
 
 const createCheckoutBodySchema = z.object({
-  organizationId: z.string().uuid("Select a valid workspace before subscribing."),
+  organizationId: z
+    .string()
+    .uuid("Select a valid workspace before subscribing."),
   tier: z.enum(["starter", "pro"]),
-})
+});
 
-const MANAGED_STRIPE_SUBSCRIPTION_STATUSES = new Set<Stripe.Subscription.Status>([
-  "trialing",
-  "active",
-  "past_due",
-  "unpaid",
-  "incomplete",
-  "paused",
-])
+const MANAGED_STRIPE_SUBSCRIPTION_STATUSES =
+  new Set<Stripe.Subscription.Status>([
+    "trialing",
+    "active",
+    "past_due",
+    "unpaid",
+    "incomplete",
+    "paused",
+  ]);
 
 function createErrorResponse(status: number, message: string) {
-  return NextResponse.json({ message }, { status })
+  return NextResponse.json({ message }, { status });
 }
 
 function isManagedStripeSubscriptionStatus(status: Stripe.Subscription.Status) {
-  return MANAGED_STRIPE_SUBSCRIPTION_STATUSES.has(status)
+  return MANAGED_STRIPE_SUBSCRIPTION_STATUSES.has(status);
 }
 
 function toIsoDate(value: number | null | undefined) {
-  return typeof value === "number" ? new Date(value * 1000).toISOString() : null
+  return typeof value === "number"
+    ? new Date(value * 1000).toISOString()
+    : null;
 }
 
 function getSubscriptionCurrentPeriodEnd(subscription: Stripe.Subscription) {
-  return subscription.items.data[0]?.current_period_end ?? subscription.cancel_at ?? null
+  return (
+    subscription.items.data[0]?.current_period_end ??
+    subscription.cancel_at ??
+    null
+  );
 }
 
 async function findManagedStripeSubscriptionForCustomer(
   stripe: Stripe,
-  customerId: string
+  customerId: string,
 ) {
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
     status: "all",
     limit: 20,
-  })
+  });
 
   return (
     subscriptions.data.find((subscription) =>
-      isManagedStripeSubscriptionStatus(subscription.status)
+      isManagedStripeSubscriptionStatus(subscription.status),
     ) ?? null
-  )
+  );
 }
 
 async function findExistingStripeBillingForOrganization(
   stripe: Stripe,
   organizationId: string,
   options: {
-    customerId: string | null
-    email: string | null
-  }
+    customerId: string | null;
+    email: string | null;
+  },
 ) {
   if (options.customerId) {
-    const subscription = await findManagedStripeSubscriptionForCustomer(stripe, options.customerId)
+    const subscription = await findManagedStripeSubscriptionForCustomer(
+      stripe,
+      options.customerId,
+    );
 
     if (subscription) {
       return {
         customerId: options.customerId,
         subscription,
-      }
+      };
     }
   }
 
   if (!options.email) {
-    return null
+    return null;
   }
 
   const customers = await stripe.customers.list({
     email: options.email,
     limit: 20,
-  })
+  });
 
   for (const customer of customers.data) {
-    const subscription = await findManagedStripeSubscriptionForCustomer(stripe, customer.id)
+    const subscription = await findManagedStripeSubscriptionForCustomer(
+      stripe,
+      customer.id,
+    );
 
     if (subscription?.metadata.organization_id?.trim() === organizationId) {
       return {
         customerId: customer.id,
         subscription,
-      }
+      };
     }
   }
 
-  return null
+  return null;
 }
 
-async function persistStripeCustomerId(organizationId: string, stripeCustomerId: string) {
-  const adminClient = createAdminClient()
+async function persistStripeCustomerId(
+  organizationId: string,
+  stripeCustomerId: string,
+) {
+  const adminClient = createAdminClient();
   const { data, error } = await adminClient
     .from("organizations")
     .update({
@@ -119,92 +136,101 @@ async function persistStripeCustomerId(organizationId: string, stripeCustomerId:
     .eq("id", organizationId)
     .is("stripe_customer_id", null)
     .select("stripe_customer_id")
-    .maybeSingle()
+    .maybeSingle();
 
   if (error) {
-    throw error
+    throw error;
   }
 
   if (data?.stripe_customer_id) {
-    return data.stripe_customer_id
+    return data.stripe_customer_id;
   }
 
-  const { data: existingOrganization, error: existingOrganizationError } = await adminClient
-    .from("organizations")
-    .select("stripe_customer_id")
-    .eq("id", organizationId)
-    .maybeSingle()
+  const { data: existingOrganization, error: existingOrganizationError } =
+    await adminClient
+      .from("organizations")
+      .select("stripe_customer_id")
+      .eq("id", organizationId)
+      .maybeSingle();
 
   if (existingOrganizationError) {
-    throw existingOrganizationError
+    throw existingOrganizationError;
   }
 
-  return existingOrganization?.stripe_customer_id ?? stripeCustomerId
+  return existingOrganization?.stripe_customer_id ?? stripeCustomerId;
 }
 
 async function syncOrganizationBillingFromStripe(
   organizationId: string,
   stripeCustomerId: string,
-  subscription: Stripe.Subscription
+  subscription: Stripe.Subscription,
 ) {
-  const adminClient = createAdminClient()
-  const subscriptionTier = getBillingTierFromStripeSubscription(subscription)
+  const adminClient = createAdminClient();
+  const subscriptionTier = getBillingTierFromStripeSubscription(subscription);
   const updateValues: {
-    stripe_customer_id: string
-    stripe_subscription_id: string
-    subscription_status: Stripe.Subscription.Status
-    subscription_current_period_end: string | null
-    subscription_cancel_at_period_end: boolean
-    subscription_tier?: "starter" | "pro"
+    stripe_customer_id: string;
+    stripe_subscription_id: string;
+    subscription_status: Stripe.Subscription.Status;
+    subscription_current_period_end: string | null;
+    subscription_cancel_at_period_end: boolean;
+    subscription_tier?: "starter" | "pro";
   } = {
     stripe_customer_id: stripeCustomerId,
     stripe_subscription_id: subscription.id,
     subscription_status: subscription.status,
-    subscription_current_period_end: toIsoDate(getSubscriptionCurrentPeriodEnd(subscription)),
+    subscription_current_period_end: toIsoDate(
+      getSubscriptionCurrentPeriodEnd(subscription),
+    ),
     subscription_cancel_at_period_end: subscription.cancel_at_period_end,
-  }
+  };
 
   if (subscriptionTier) {
-    updateValues.subscription_tier = subscriptionTier
+    updateValues.subscription_tier = subscriptionTier;
   }
 
   const { error } = await adminClient
     .from("organizations")
     .update(updateValues)
-    .eq("id", organizationId)
+    .eq("id", organizationId);
 
   if (error) {
-    throw error
+    throw error;
   }
 }
 
 export async function POST(request: Request) {
   if (!hasStripeBillingEnv()) {
-    return createErrorResponse(503, MISSING_STRIPE_BILLING_ENV_MESSAGE)
+    return createErrorResponse(503, MISSING_STRIPE_BILLING_ENV_MESSAGE);
   }
 
   if (!hasSupabaseAdminEnv()) {
-    return createErrorResponse(503, MISSING_SUPABASE_SERVICE_ROLE_KEY_MESSAGE)
+    return createErrorResponse(503, MISSING_SUPABASE_SERVICE_ROLE_KEY_MESSAGE);
   }
 
-  let payload: z.infer<typeof createCheckoutBodySchema>
+  let payload: z.infer<typeof createCheckoutBodySchema>;
 
   try {
-    payload = createCheckoutBodySchema.parse(await request.json())
+    payload = createCheckoutBodySchema.parse(await request.json());
   } catch {
-    return createErrorResponse(400, "Choose a valid paid plan before continuing.")
+    return createErrorResponse(
+      400,
+      "Choose a valid paid plan before continuing.",
+    );
   }
 
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    return createErrorResponse(401, "You must be signed in to manage billing.")
+    return createErrorResponse(401, "You must be signed in to manage billing.");
   }
 
-  const [{ data: membership }, { data: organization, error: organizationError }] = await Promise.all([
+  const [
+    { data: membership },
+    { data: organization, error: organizationError },
+  ] = await Promise.all([
     supabase
       .from("organization_members")
       .select("role, status")
@@ -215,58 +241,73 @@ export async function POST(request: Request) {
     supabase
       .from("organizations")
       .select(
-        "id, name, slug, stripe_customer_id, stripe_subscription_id, subscription_status, subscription_tier"
+        "id, name, slug, stripe_customer_id, stripe_subscription_id, subscription_status, subscription_tier",
       )
       .eq("id", payload.organizationId)
       .is("archived_at", null)
       .maybeSingle(),
-  ])
+  ]);
 
   if (organizationError) {
-    return createErrorResponse(500, organizationError.message)
+    return createErrorResponse(500, organizationError.message);
   }
 
   if (!organization || !membership) {
-    return createErrorResponse(404, "The selected workspace could not be found.")
+    return createErrorResponse(
+      404,
+      "The selected workspace could not be found.",
+    );
   }
 
   if (membership.role !== "owner") {
-    return createErrorResponse(403, "Only workspace owners can start a subscription.")
+    return createErrorResponse(
+      403,
+      "Only workspace owners can start a subscription.",
+    );
   }
 
-  const currentStatus = normalizeBillingSubscriptionStatus(organization.subscription_status)
+  const currentStatus = normalizeBillingSubscriptionStatus(
+    organization.subscription_status,
+  );
   const hasManagedSubscription =
     Boolean(organization.stripe_subscription_id) ||
-    ["trialing", "active", "past_due", "unpaid", "incomplete", "paused"].includes(currentStatus)
+    [
+      "trialing",
+      "active",
+      "past_due",
+      "unpaid",
+      "incomplete",
+      "paused",
+    ].includes(currentStatus);
 
   if (hasManagedSubscription) {
     return createErrorResponse(
       409,
-      "This workspace already has a Stripe subscription. Open billing management instead of starting a second checkout."
-    )
+      "This workspace already has a Stripe subscription. Open billing management instead of starting a second checkout.",
+    );
   }
 
-  const stripe = createStripeClient()
+  const stripe = createStripeClient();
   const existingStripeBilling = await findExistingStripeBillingForOrganization(
     stripe,
     organization.id,
     {
       customerId: organization.stripe_customer_id ?? null,
       email: user.email ?? null,
-    }
-  )
+    },
+  );
 
   if (existingStripeBilling) {
     await syncOrganizationBillingFromStripe(
       organization.id,
       existingStripeBilling.customerId,
-      existingStripeBilling.subscription
-    )
+      existingStripeBilling.subscription,
+    );
 
     return createErrorResponse(
       409,
-      "This workspace already has a Stripe subscription. Open billing management instead of starting a second checkout."
-    )
+      "This workspace already has a Stripe subscription. Open billing management instead of starting a second checkout.",
+    );
   }
 
   const stripeCustomerId =
@@ -282,15 +323,15 @@ export async function POST(request: Request) {
             organization_slug: organization.slug,
           },
         })
-      ).id
-    ))
+      ).id,
+    ));
 
-  const origin = await getRequestOrigin()
-  const successUrl = new URL("/dashboard/profile", origin)
-  successUrl.searchParams.set("billing", "success")
+  const origin = await getRequestOrigin();
+  const successUrl = new URL("/dashboard/profile", origin);
+  successUrl.searchParams.set("billing", "success");
 
-  const cancelUrl = new URL("/dashboard/profile", origin)
-  cancelUrl.searchParams.set("billing", "canceled")
+  const cancelUrl = new URL("/dashboard/profile", origin);
+  cancelUrl.searchParams.set("billing", "canceled");
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -319,16 +360,21 @@ export async function POST(request: Request) {
       },
       success_url: successUrl.toString(),
       cancel_url: cancelUrl.toString(),
-    })
+    });
 
     if (!session.url) {
-      return createErrorResponse(502, "Stripe Checkout did not return a redirect URL.")
+      return createErrorResponse(
+        502,
+        "Stripe Checkout did not return a redirect URL.",
+      );
     }
 
-    return NextResponse.json({ url: session.url })
+    return NextResponse.json({ url: session.url });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Stripe Checkout could not be started."
-    return createErrorResponse(500, message)
+      error instanceof Error
+        ? error.message
+        : "Stripe Checkout could not be started.";
+    return createErrorResponse(500, message);
   }
 }

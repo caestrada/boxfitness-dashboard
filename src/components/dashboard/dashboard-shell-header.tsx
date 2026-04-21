@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { usePathname } from "next/navigation"
+import { usePathname } from "next/navigation";
 
 interface DashboardShellHeaderProps {
-  gymCount: number
+  gymCount: number;
 }
 
 function getGymWorkspaceCopy(gymCount: number) {
-  return `${gymCount} gym workspace${gymCount === 1 ? "" : "s"} connected`
+  return `${gymCount} gym workspace${gymCount === 1 ? "" : "s"} connected`;
 }
 
 function getDashboardHeaderContent(pathname: string, gymCount: number) {
@@ -15,25 +15,31 @@ function getDashboardHeaderContent(pathname: string, gymCount: number) {
     return {
       label: "Account Settings",
       title: "Manage your Box Fitness account",
-    }
+    };
   }
 
   if (pathname.startsWith("/dashboard/gyms/new")) {
     return {
       label: "Gyms",
-      title: gymCount > 0 ? "Add another gym workspace" : "Create your first gym workspace",
-    }
+      title:
+        gymCount > 0
+          ? "Add another gym workspace"
+          : "Create your first gym workspace",
+    };
   }
 
   return {
     label: "Dashboard",
-    title: gymCount > 0 ? getGymWorkspaceCopy(gymCount) : "Create your first gym workspace",
-  }
+    title:
+      gymCount > 0
+        ? getGymWorkspaceCopy(gymCount)
+        : "Create your first gym workspace",
+  };
 }
 
 export function DashboardShellHeader({ gymCount }: DashboardShellHeaderProps) {
-  const pathname = usePathname()
-  const { label, title } = getDashboardHeaderContent(pathname, gymCount)
+  const pathname = usePathname();
+  const { label, title } = getDashboardHeaderContent(pathname, gymCount);
 
   return (
     <>
@@ -42,5 +48,5 @@ export function DashboardShellHeader({ gymCount }: DashboardShellHeaderProps) {
         {title}
       </p>
     </>
-  )
+  );
 }

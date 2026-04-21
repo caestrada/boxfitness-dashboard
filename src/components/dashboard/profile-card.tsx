@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
+import { Camera, LoaderCircle, Trash2, UserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
+  type ChangeEvent,
   startTransition,
   useActionState,
   useEffect,
   useRef,
-  type ChangeEvent,
-} from "react"
-import { useFormStatus } from "react-dom"
-import { LoaderCircle, Camera, Trash2, UserRound } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+} from "react";
+import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
 
 import {
   updateProfileAvatarAction,
   updateProfileDetailsAction,
-} from "@/app/dashboard/profile/actions"
+} from "@/app/dashboard/profile/actions";
 import {
   initialProfileAvatarActionState,
   initialProfileDetailsActionState,
-} from "@/app/dashboard/profile/profile-action-state"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+} from "@/app/dashboard/profile/profile-action-state";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,22 +36,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
+  type DashboardUserProfile,
   getInitials,
   getUserDisplayName,
-  type DashboardUserProfile,
-} from "@/lib/dashboard"
-import { PROFILE_AVATAR_ACCEPT } from "@/lib/profile-avatar"
+} from "@/lib/dashboard";
+import { PROFILE_AVATAR_ACCEPT } from "@/lib/profile-avatar";
 
 interface ProfileCardProps {
-  user: DashboardUserProfile
+  user: DashboardUserProfile;
 }
 
 function ProfileSaveButton() {
-  const { pending } = useFormStatus()
+  const { pending } = useFormStatus();
 
   return (
     <Button disabled={pending} size="sm" type="submit">
@@ -64,93 +64,109 @@ function ProfileSaveButton() {
         "Save profile"
       )}
     </Button>
-  )
+  );
 }
 
 export function ProfileCard({ user }: ProfileCardProps) {
-  const router = useRouter()
+  const router = useRouter();
   const [avatarState, avatarFormAction] = useActionState(
     updateProfileAvatarAction,
-    initialProfileAvatarActionState
-  )
+    initialProfileAvatarActionState,
+  );
   const [detailsState, detailsFormAction] = useActionState(
     updateProfileDetailsAction,
-    initialProfileDetailsActionState
-  )
-  const avatarFormRef = useRef<HTMLFormElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const lastHandledAvatarSubmissionIdRef = useRef<string | null>(null)
-  const lastHandledDetailsSubmissionIdRef = useRef<string | null>(null)
+    initialProfileDetailsActionState,
+  );
+  const avatarFormRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const lastHandledAvatarSubmissionIdRef = useRef<string | null>(null);
+  const lastHandledDetailsSubmissionIdRef = useRef<string | null>(null);
 
   const avatarUrl =
-    avatarState.status === "success" ? avatarState.avatarUrl ?? null : user.avatarUrl
+    avatarState.status === "success"
+      ? (avatarState.avatarUrl ?? null)
+      : user.avatarUrl;
   const currentFullName =
-    detailsState.status === "success" ? detailsState.fullName ?? null : user.fullName
+    detailsState.status === "success"
+      ? (detailsState.fullName ?? null)
+      : user.fullName;
   const displayName = getUserDisplayName({
     ...user,
     avatarUrl,
     fullName: currentFullName,
-  })
-  const initials = getInitials(displayName)
+  });
+  const initials = getInitials(displayName);
 
   useEffect(() => {
     if (!avatarState.message || !avatarState.submissionId) {
-      return
+      return;
     }
 
     if (lastHandledAvatarSubmissionIdRef.current === avatarState.submissionId) {
-      return
+      return;
     }
 
-    lastHandledAvatarSubmissionIdRef.current = avatarState.submissionId
-    avatarFormRef.current?.reset()
+    lastHandledAvatarSubmissionIdRef.current = avatarState.submissionId;
+    avatarFormRef.current?.reset();
 
     if (avatarState.status === "error") {
-      toast.error(avatarState.message)
-      return
+      toast.error(avatarState.message);
+      return;
     }
 
-    toast.success(avatarState.message)
+    toast.success(avatarState.message);
 
     startTransition(() => {
-      router.refresh()
-    })
-  }, [avatarState.message, avatarState.status, avatarState.submissionId, router])
+      router.refresh();
+    });
+  }, [
+    avatarState.message,
+    avatarState.status,
+    avatarState.submissionId,
+    router,
+  ]);
 
   useEffect(() => {
     if (!detailsState.message || !detailsState.submissionId) {
-      return
+      return;
     }
 
-    if (lastHandledDetailsSubmissionIdRef.current === detailsState.submissionId) {
-      return
+    if (
+      lastHandledDetailsSubmissionIdRef.current === detailsState.submissionId
+    ) {
+      return;
     }
 
-    lastHandledDetailsSubmissionIdRef.current = detailsState.submissionId
+    lastHandledDetailsSubmissionIdRef.current = detailsState.submissionId;
 
     if (detailsState.status === "error") {
-      toast.error(detailsState.message)
-      return
+      toast.error(detailsState.message);
+      return;
     }
 
-    toast.success(detailsState.message)
+    toast.success(detailsState.message);
 
     startTransition(() => {
-      router.refresh()
-    })
-  }, [detailsState.fullName, detailsState.message, detailsState.status, detailsState.submissionId, router])
+      router.refresh();
+    });
+  }, [
+    detailsState.message,
+    detailsState.status,
+    detailsState.submissionId,
+    router,
+  ]);
 
   const openFilePicker = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
-      return
+      return;
     }
 
-    avatarFormRef.current?.requestSubmit()
-  }
+    avatarFormRef.current?.requestSubmit();
+  };
 
   return (
     <Card className="border-border/70 bg-card">
@@ -163,7 +179,8 @@ export function ProfileCard({ user }: ProfileCardProps) {
           <div className="space-y-2">
             <CardTitle className="text-2xl">Profile</CardTitle>
             <CardDescription className="max-w-2xl leading-7">
-              Update the profile details that appear across your Box Fitness account.
+              Update the profile details that appear across your Box Fitness
+              account.
             </CardDescription>
           </div>
         </div>
@@ -180,8 +197,13 @@ export function ProfileCard({ user }: ProfileCardProps) {
                   type="button"
                 >
                   <Avatar className="size-28 border border-primary/15 bg-primary/10 shadow-[0_0_0_1px_rgba(255,107,44,0.08)] transition-transform duration-200 group-hover:scale-[1.02]">
-                    <AvatarImage alt={displayName} src={avatarUrl ?? undefined} />
-                    <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+                    <AvatarImage
+                      alt={displayName}
+                      src={avatarUrl ?? undefined}
+                    />
+                    <AvatarFallback className="text-2xl">
+                      {initials}
+                    </AvatarFallback>
                   </Avatar>
 
                   <span className="absolute bottom-0 right-0 flex size-10 items-center justify-center rounded-full border-4 border-card bg-primary text-primary-foreground shadow-[0_16px_36px_-20px_rgba(255,107,44,0.55)]">
@@ -191,7 +213,11 @@ export function ProfileCard({ user }: ProfileCardProps) {
                 </button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="start" className="w-56" sideOffset={16}>
+              <DropdownMenuContent
+                align="start"
+                className="w-56"
+                sideOffset={16}
+              >
                 <DropdownMenuLabel>Avatar actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
@@ -225,9 +251,13 @@ export function ProfileCard({ user }: ProfileCardProps) {
                 <p className="mt-1 text-base text-muted-foreground">
                   {user.email ?? "Signed in"}
                 </p>
-                <p id="profile-avatar-help" className="mt-2 text-sm text-muted-foreground">
-                  Click the photo to upload a new image or remove the current one. Use a
-                  square image when possible so the crop stays clean across the shell.
+                <p
+                  id="profile-avatar-help"
+                  className="mt-2 text-sm text-muted-foreground"
+                >
+                  Click the photo to upload a new image or remove the current
+                  one. Use a square image when possible so the crop stays clean
+                  across the shell.
                 </p>
               </div>
             </div>
@@ -287,5 +317,5 @@ export function ProfileCard({ user }: ProfileCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useActionState } from "react"
-import { CheckCircle2, CircleAlert } from "lucide-react"
+import { CheckCircle2, CircleAlert } from "lucide-react";
+import { useActionState } from "react";
 
-import { SubmitButton } from "@/components/auth/submit-button"
+import { SubmitButton } from "@/components/auth/submit-button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  initialAuthActionState,
   type AuthActionState,
-} from "@/lib/auth/form-state"
+  initialAuthActionState,
+} from "@/lib/auth/form-state";
 
 interface EmailAuthFormProps {
-  title: string
-  description: string
-  submitLabel: string
-  pendingLabel: string
-  redirectTo: string
+  title: string;
+  description: string;
+  submitLabel: string;
+  pendingLabel: string;
+  redirectTo: string;
   action: (
     state: AuthActionState,
-    formData: FormData
-  ) => Promise<AuthActionState>
+    formData: FormData,
+  ) => Promise<AuthActionState>;
 }
 
 export function EmailAuthForm({
@@ -38,13 +38,15 @@ export function EmailAuthForm({
   redirectTo,
   action,
 }: EmailAuthFormProps) {
-  const [state, formAction] = useActionState(action, initialAuthActionState)
+  const [state, formAction] = useActionState(action, initialAuthActionState);
 
   return (
     <Card className="border-border/70 bg-white/84 dark:bg-card/92">
       <CardHeader className="space-y-3">
         <CardTitle className="text-[1.75rem]">{title}</CardTitle>
-        <CardDescription className="max-w-lg leading-7">{description}</CardDescription>
+        <CardDescription className="max-w-lg leading-7">
+          {description}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-5">
@@ -62,7 +64,9 @@ export function EmailAuthForm({
               type="email"
             />
             {state.fieldErrors?.email ? (
-              <p className="text-sm text-destructive">{state.fieldErrors.email}</p>
+              <p className="text-sm text-destructive">
+                {state.fieldErrors.email}
+              </p>
             ) : null}
           </div>
 
@@ -71,7 +75,9 @@ export function EmailAuthForm({
             <Input
               id={`${title}-password`}
               autoComplete={
-                submitLabel === "Create account" ? "new-password" : "current-password"
+                submitLabel === "Create account"
+                  ? "new-password"
+                  : "current-password"
               }
               aria-invalid={Boolean(state.fieldErrors?.password)}
               minLength={8}
@@ -108,5 +114,5 @@ export function EmailAuthForm({
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

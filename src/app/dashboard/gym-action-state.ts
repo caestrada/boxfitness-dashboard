@@ -1,11 +1,11 @@
 export interface CreateGymActionState {
-  status: "idle" | "error"
-  message?: string
+  status: "idle" | "error";
+  message?: string;
   fieldErrors?: {
-    name?: string
-  }
+    name?: string;
+  };
 }
 
 export const initialCreateGymActionState: CreateGymActionState = {
   status: "idle",
-}
+};

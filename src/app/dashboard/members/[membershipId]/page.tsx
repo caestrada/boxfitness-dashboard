@@ -1,61 +1,61 @@
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { ArrowLeft, PencilLine } from "lucide-react"
+import { ArrowLeft, PencilLine } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-import { getScopedMemberRecord } from "@/app/dashboard/members/member-record"
-import { MemberDeleteButton } from "@/components/dashboard/member-delete-action"
-import { Button } from "@/components/ui/button"
+import { getScopedMemberRecord } from "@/app/dashboard/members/member-record";
+import { MemberDeleteButton } from "@/components/dashboard/member-delete-action";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { getMemberStatusMeta } from "@/lib/members"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/card";
+import { getMemberStatusMeta } from "@/lib/members";
+import { cn } from "@/lib/utils";
 
 const memberPrimaryButtonClassName =
-  "bg-primary text-primary-foreground shadow-[0_18px_36px_-24px_rgba(255,107,44,0.7)] hover:bg-primary/90"
+  "bg-primary text-primary-foreground shadow-[0_18px_36px_-24px_rgba(255,107,44,0.7)] hover:bg-primary/90";
 
 const memberSecondaryButtonClassName =
-  "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+  "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary";
 
 function formatDate(value: string | null, fallback: string) {
   if (!value) {
-    return fallback
+    return fallback;
   }
 
-  const parsedDate = new Date(value)
+  const parsedDate = new Date(value);
 
   if (Number.isNaN(parsedDate.getTime())) {
-    return fallback
+    return fallback;
   }
 
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(parsedDate)
+  }).format(parsedDate);
 }
 
 function formatCurrency(valueInCents: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(valueInCents / 100)
+  }).format(valueInCents / 100);
 }
 
 export default async function MemberProfilePage({
   params,
 }: {
-  params: Promise<{ membershipId: string }>
+  params: Promise<{ membershipId: string }>;
 }) {
-  const { membershipId } = await params
+  const { membershipId } = await params;
   const { activeGym, member } = await getScopedMemberRecord(
     membershipId,
-    `/dashboard/members/${membershipId}`
-  )
+    `/dashboard/members/${membershipId}`,
+  );
 
   if (!activeGym) {
     return (
@@ -69,19 +69,23 @@ export default async function MemberProfilePage({
           </CardHeader>
         </Card>
       </div>
-    )
+    );
   }
 
   if (!member) {
-    notFound()
+    notFound();
   }
 
-  const statusMeta = getMemberStatusMeta(member.status)
+  const statusMeta = getMemberStatusMeta(member.status);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Button asChild className={memberSecondaryButtonClassName} variant="outline">
+        <Button
+          asChild
+          className={memberSecondaryButtonClassName}
+          variant="outline"
+        >
           <Link href="/dashboard/members">
             <ArrowLeft className="size-4" />
             Back to members
@@ -116,7 +120,7 @@ export default async function MemberProfilePage({
           <span
             className={cn(
               "inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-medium",
-              statusMeta.className
+              statusMeta.className,
             )}
           >
             {statusMeta.label}
@@ -136,7 +140,9 @@ export default async function MemberProfilePage({
             </p>
           </div>
           <div className="rounded-[1.25rem] border border-border/70 p-4">
-            <p className="text-sm font-medium text-muted-foreground">Membership plan</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              Membership plan
+            </p>
             <p className="mt-2 text-base text-foreground">
               {member.membershipPlan ?? "Unassigned"}
             </p>
@@ -148,7 +154,9 @@ export default async function MemberProfilePage({
             </p>
           </div>
           <div className="rounded-[1.25rem] border border-border/70 p-4">
-            <p className="text-sm font-medium text-muted-foreground">Last visit</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              Last visit
+            </p>
             <p className="mt-2 text-base text-foreground">
               {formatDate(member.lastVisitAt, "No visits yet")}
             </p>
@@ -166,5 +174,5 @@ export default async function MemberProfilePage({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

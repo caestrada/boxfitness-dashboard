@@ -1,34 +1,34 @@
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-import { getScopedMemberRecord } from "@/app/dashboard/members/member-record"
-import { EditMemberForm } from "@/components/dashboard/add-member-form"
-import { Button } from "@/components/ui/button"
+import { getScopedMemberRecord } from "@/app/dashboard/members/member-record";
+import { EditMemberForm } from "@/components/dashboard/add-member-form";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
 const memberSecondaryButtonClassName =
-  "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+  "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary";
 
 function formatOutstandingBalanceInput(valueInCents: number) {
-  return (Math.max(0, valueInCents) / 100).toFixed(2)
+  return (Math.max(0, valueInCents) / 100).toFixed(2);
 }
 
 export default async function EditMemberPage({
   params,
 }: {
-  params: Promise<{ membershipId: string }>
+  params: Promise<{ membershipId: string }>;
 }) {
-  const { membershipId } = await params
+  const { membershipId } = await params;
   const { activeGym, member } = await getScopedMemberRecord(
     membershipId,
-    `/dashboard/members/${membershipId}/edit`
-  )
+    `/dashboard/members/${membershipId}/edit`,
+  );
 
   if (!activeGym) {
     return (
@@ -42,17 +42,21 @@ export default async function EditMemberPage({
           </CardHeader>
         </Card>
       </div>
-    )
+    );
   }
 
   if (!member) {
-    notFound()
+    notFound();
   }
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6">
       <div className="flex items-center">
-        <Button asChild className={memberSecondaryButtonClassName} variant="outline">
+        <Button
+          asChild
+          className={memberSecondaryButtonClassName}
+          variant="outline"
+        >
           <Link href={`/dashboard/members/${member.id}`}>
             <ArrowLeft className="size-4" />
             Back to profile
@@ -67,7 +71,7 @@ export default async function EditMemberPage({
           joinedAt: member.joinedAt ?? "",
           membershipPlan: member.membershipPlan ?? "",
           outstandingBalance: formatOutstandingBalanceInput(
-            member.outstandingBalanceCents
+            member.outstandingBalanceCents,
           ),
           phone: member.phone ?? "",
           status: member.status,
@@ -78,5 +82,5 @@ export default async function EditMemberPage({
         organizationName={activeGym.name}
       />
     </div>
-  )
+  );
 }

@@ -1,16 +1,13 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
-import { Toaster } from "sonner"
+import type { ReactNode } from "react";
+import { Toaster } from "sonner";
 
-import { QueryProvider } from "@/components/providers/query-provider"
-import {
-  ThemeProvider,
-  useTheme,
-} from "@/components/providers/theme-provider"
+import { QueryProvider } from "@/components/providers/query-provider";
+import { ThemeProvider, useTheme } from "@/components/providers/theme-provider";
 
 function AppToaster() {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
 
   return (
     <Toaster
@@ -25,7 +22,7 @@ function AppToaster() {
         },
       }}
     />
-  )
+  );
 }
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -36,5 +33,5 @@ export function AppProviders({ children }: { children: ReactNode }) {
         <AppToaster />
       </ThemeProvider>
     </QueryProvider>
-  )
+  );
 }

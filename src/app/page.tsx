@@ -1,32 +1,32 @@
-import Link from "next/link"
-import { redirect } from "next/navigation"
 import {
   ArrowRight,
   Cloud,
   Database,
   Dumbbell,
   LayoutDashboard,
+  type LucideIcon,
   ShieldCheck,
   Sparkles,
-  type LucideIcon,
-} from "lucide-react"
+} from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { SetupPanel } from "@/components/setup/setup-panel"
-import { Button } from "@/components/ui/button"
+import { SetupPanel } from "@/components/setup/setup-panel";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { hasSupabaseEnv } from "@/lib/env"
-import { createClient } from "@/lib/supabase/server"
+} from "@/components/ui/card";
+import { hasSupabaseEnv } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 
 const foundationCards: Array<{
-  title: string
-  description: string
-  icon: LucideIcon
+  title: string;
+  description: string;
+  icon: LucideIcon;
 }> = [
   {
     title: "Server-first auth",
@@ -46,31 +46,34 @@ const foundationCards: Array<{
       "The old dashboard stays reference material only while the new app earns cleaner workflow boundaries.",
     icon: Database,
   },
-]
+];
 
 const proofStrip = [
   "App Router foundation",
   "Gym-aware shell",
   "Cloud Supabase target",
   "Light-first redesign",
-] as const
+] as const;
 
 export default async function Home() {
   if (hasSupabaseEnv()) {
-    const supabase = await createClient()
+    const supabase = await createClient();
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (user) {
-      redirect("/dashboard")
+      redirect("/dashboard");
     }
   }
 
   return (
     <main className="relative overflow-hidden pb-16">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6 md:px-10">
-        <Link href="/" className="inline-flex items-center gap-3 text-sm font-semibold">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-3 text-sm font-semibold"
+        >
           <span className="flex size-9 items-center justify-center rounded-full bg-foreground text-background">
             <Dumbbell className="size-4" />
           </span>
@@ -84,7 +87,12 @@ export default async function Home() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button asChild className="hidden sm:inline-flex" size="sm" variant="ghost">
+          <Button
+            asChild
+            className="hidden sm:inline-flex"
+            size="sm"
+            variant="ghost"
+          >
             <Link href="/auth">Log in</Link>
           </Button>
           <Button asChild size="sm">
@@ -114,7 +122,8 @@ export default async function Home() {
           >
             <p className="section-label">Visual Direction</p>
             <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-foreground">
-              Lighter, calmer, and more editorial than the old high-contrast shell.
+              Lighter, calmer, and more editorial than the old high-contrast
+              shell.
             </p>
           </div>
 
@@ -129,8 +138,9 @@ export default async function Home() {
             </h1>
 
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-              This rebuild keeps the server-first foundation, drops the heavier shell bias,
-              and moves the product toward a quieter operational experience.
+              This rebuild keeps the server-first foundation, drops the heavier
+              shell bias, and moves the product toward a quieter operational
+              experience.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -151,7 +161,10 @@ export default async function Home() {
 
           <div className="mt-12 grid gap-3 md:grid-cols-4">
             {proofStrip.map((item) => (
-              <div key={item} className="app-subpanel px-4 py-3 text-center text-sm text-muted-foreground">
+              <div
+                key={item}
+                className="app-subpanel px-4 py-3 text-center text-sm text-muted-foreground"
+              >
                 {item}
               </div>
             ))}
@@ -162,14 +175,19 @@ export default async function Home() {
       <section className="mx-auto grid max-w-6xl gap-6 px-6 md:px-10 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="grid gap-4">
           {foundationCards.map(({ title, description, icon: Icon }) => (
-            <Card key={title} className="border-border/70 bg-white/84 dark:bg-card/92">
+            <Card
+              key={title}
+              className="border-border/70 bg-white/84 dark:bg-card/92"
+            >
               <CardHeader className="space-y-4">
                 <div className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Icon className="size-5" />
                 </div>
                 <div className="space-y-2">
                   <CardTitle className="text-2xl">{title}</CardTitle>
-                  <CardDescription className="leading-7">{description}</CardDescription>
+                  <CardDescription className="leading-7">
+                    {description}
+                  </CardDescription>
                 </div>
               </CardHeader>
             </Card>
@@ -184,11 +202,13 @@ export default async function Home() {
 
           <CardHeader className="relative">
             <p className="section-label">Current Foundation</p>
-            <CardTitle className="text-3xl">A cleaner base for every workflow rebuild</CardTitle>
+            <CardTitle className="text-3xl">
+              A cleaner base for every workflow rebuild
+            </CardTitle>
             <CardDescription className="max-w-2xl leading-7">
-              The app already has the right platform pieces. The main work now is
-              product translation: calmer layouts, clearer hierarchy, and better
-              module boundaries.
+              The app already has the right platform pieces. The main work now
+              is product translation: calmer layouts, clearer hierarchy, and
+              better module boundaries.
             </CardDescription>
           </CardHeader>
 
@@ -207,7 +227,9 @@ export default async function Home() {
               <ul className="mt-4 space-y-3 text-sm leading-7 text-muted-foreground">
                 <li>Light-first palette with softer surfaces</li>
                 <li>Large type, more whitespace, simpler chrome</li>
-                <li>Document-style panels instead of glassy high-contrast cards</li>
+                <li>
+                  Document-style panels instead of glassy high-contrast cards
+                </li>
               </ul>
             </div>
           </CardContent>
@@ -223,16 +245,18 @@ export default async function Home() {
               <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Sparkles className="size-5" />
               </div>
-              <CardTitle className="text-3xl">The foundation is connected.</CardTitle>
+              <CardTitle className="text-3xl">
+                The foundation is connected.
+              </CardTitle>
               <CardDescription className="max-w-2xl leading-7">
-                Supabase environment variables are present, so the app can keep using
-                SSR auth flows, protected routes, and cloud-hosted data while the new
-                visual system rolls out.
+                Supabase environment variables are present, so the app can keep
+                using SSR auth flows, protected routes, and cloud-hosted data
+                while the new visual system rolls out.
               </CardDescription>
             </CardHeader>
           </Card>
         )}
       </section>
     </main>
-  )
+  );
 }

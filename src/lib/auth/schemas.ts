@@ -1,4 +1,4 @@
-import { z } from "zod/v3"
+import { z } from "zod/v3";
 
 export const emailAuthSchema = z.object({
   email: z
@@ -10,4 +10,4 @@ export const emailAuthSchema = z.object({
     .string()
     .min(8, "Use at least 8 characters.")
     .max(72, "Passwords must be 72 characters or less."),
-})
+});

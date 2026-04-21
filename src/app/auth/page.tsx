@@ -1,37 +1,37 @@
-import Link from "next/link"
-import { redirect } from "next/navigation"
 import {
   Cloud,
   Database,
   Dumbbell,
   LayoutDashboard,
-  ShieldCheck,
   type LucideIcon,
-} from "lucide-react"
+  ShieldCheck,
+} from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { EmailAuthForm } from "@/components/auth/email-auth-form"
-import { SetupPanel } from "@/components/setup/setup-panel"
+import { EmailAuthForm } from "@/components/auth/email-auth-form";
+import { SetupPanel } from "@/components/setup/setup-panel";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { hasSupabaseEnv } from "@/lib/env"
-import { createClient } from "@/lib/supabase/server"
-import { getFirstString, normalizeRedirectPath } from "@/lib/url"
+} from "@/components/ui/card";
+import { hasSupabaseEnv } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
+import { getFirstString, normalizeRedirectPath } from "@/lib/url";
 
-import { signInAction, signUpAction } from "./actions"
+import { signInAction, signUpAction } from "./actions";
 
 interface AuthPageProps {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 const authNotes: Array<{
-  title: string
-  body: string
-  icon: LucideIcon
+  title: string;
+  body: string;
+  icon: LucideIcon;
 }> = [
   {
     title: "Protected app shell",
@@ -48,23 +48,23 @@ const authNotes: Array<{
     body: "This surface keeps auth stable while the rest of the product is redesigned around cleaner workflows.",
     icon: LayoutDashboard,
   },
-]
+];
 
 export default async function AuthPage({ searchParams }: AuthPageProps) {
-  const resolvedSearchParams = searchParams ? await searchParams : {}
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   const redirectTo = normalizeRedirectPath(
-    getFirstString(resolvedSearchParams.redirectTo)
-  )
-  const message = getFirstString(resolvedSearchParams.message)
+    getFirstString(resolvedSearchParams.redirectTo),
+  );
+  const message = getFirstString(resolvedSearchParams.message);
 
   if (hasSupabaseEnv()) {
-    const supabase = await createClient()
+    const supabase = await createClient();
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (user) {
-      redirect(redirectTo)
+      redirect(redirectTo);
     }
   }
 
@@ -79,7 +79,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           SSR-protected routes stay intact.
         </p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          The visual system is lighter, but the auth contract remains server-first.
+          The visual system is lighter, but the auth contract remains
+          server-first.
         </p>
       </div>
 
@@ -92,8 +93,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           Fresh Supabase project, clean auth path.
         </p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          This rebuild keeps the backend boundary new, even while product workflows are
-          still being reselected.
+          This rebuild keeps the backend boundary new, even while product
+          workflows are still being reselected.
         </p>
       </div>
 
@@ -159,10 +160,13 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
 
               <Card className="border-border/70 bg-white/78 dark:bg-card/92">
                 <CardHeader>
-                  <CardTitle className="text-2xl">Why this surface changed</CardTitle>
+                  <CardTitle className="text-2xl">
+                    Why this surface changed
+                  </CardTitle>
                   <CardDescription className="leading-7">
-                    The new direction borrows a quieter, more editorial interface style
-                    without relaxing the technical boundary underneath.
+                    The new direction borrows a quieter, more editorial
+                    interface style without relaxing the technical boundary
+                    underneath.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -172,7 +176,9 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                         <Icon className="size-4" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{title}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {title}
+                        </p>
                         <p className="mt-1 text-sm leading-6 text-muted-foreground">
                           {body}
                         </p>
@@ -186,5 +192,5 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         )}
       </div>
     </main>
-  )
+  );
 }
