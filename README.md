@@ -164,6 +164,39 @@ Write formatting changes to disk with:
 npm run format
 ```
 
+## Testing
+
+### Unit tests
+
+Unit tests are powered by [Vitest](https://vitest.dev/) + React Testing Library (happy-dom environment). Specs live under `test/unit/`.
+
+```bash
+npm run test         # run the unit suite once
+npm run test:watch   # re-run on file changes
+```
+
+### End-to-end tests
+
+E2E coverage uses [Playwright](https://playwright.dev/) (chromium only, single worker). Specs live under `test/e2e/` and use the `.spec.mts` extension. `playwright.config.mts` boots the production build via `npm run build && npm run start` before the first test.
+
+On first run, install the browser binaries:
+
+```bash
+npm run test:e2e:install
+```
+
+Then run the suite:
+
+```bash
+npm run test:e2e          # headless run
+npm run test:e2e:headed   # watch the browser drive the app
+npm run test:e2e:ui       # Playwright UI mode
+npm run test:e2e:debug    # step through with the inspector
+npm run test:all          # unit + E2E
+```
+
+Artifacts (`playwright-report/`, `test-results/`) are gitignored. On CI, traces are captured on first retry and screenshots + videos on failure.
+
 ## Validation
 
 ```bash
