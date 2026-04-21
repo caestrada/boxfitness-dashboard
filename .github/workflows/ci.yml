@@ -47,6 +47,12 @@ jobs:
   e2e-tests:
     name: E2E tests (Playwright)
     runs-on: ubuntu-latest
+    env:
+      # Placeholder Supabase env so hasSupabaseEnv() returns true at build
+      # and runtime. Public-shell tests don't hit Supabase — auth flows that
+      # do would need real credentials via repo secrets.
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-publishable-key
     steps:
       - uses: actions/checkout@v4
 
