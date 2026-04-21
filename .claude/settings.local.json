@@ -1,36 +1,36 @@
-  {
-    "permissions": {
-      "allow": [
-        "Bash(npm run:*)",
-        "Bash(npm ls:*)",
-        "Bash(npm view:*)",
-        "Bash(npm outdated:*)",
-        "Bash(npx tsc:*)",
-        "Bash(npx biome:*)",
-        "Bash(npx shadcn:*)",
-        "Bash(gh issue:*)",
-        "Bash(gh pr:*)",
-        "Bash(gh api:*)",
-        "Bash(gh repo view:*)",
-        "Bash(gh release view:*)",
-        "Bash(gh auth status:*)",
-        "Bash(awk:*)",
-        "Bash(jq:*)",
-        "Bash(python3:*)",
-        "Bash(supabase status:*)",
-        "Bash(supabase db diff:*)",
-        "Bash(supabase db lint:*)",
-        "Bash(supabase migration list:*)",
-        "Bash(supabase projects list:*)",
-        "Bash(supabase functions list:*)",
-        "Bash(supabase link:*)",
-        "Bash(git status:*)",
-        "Bash(git log:*)",
-        "Bash(git diff:*)",
-        "Bash(git show:*)",
-        "Bash(git branch:*)",
-        "Bash(git rev-parse:*)",
-        "Bash(git remote -v)"
-      ]
-    }
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm view:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx biome:*)",
+      "Bash(npx shadcn:*)",
+      "Bash(gh issue:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh release view:*)",
+      "Bash(gh auth status:*)",
+      "Bash(awk:*)",
+      "Bash(jq:*)",
+      "Bash(python3:*)",
+      "Bash(supabase status:*)",
+      "Bash(supabase db diff:*)",
+      "Bash(supabase db lint:*)",
+      "Bash(supabase migration list:*)",
+      "Bash(supabase projects list:*)",
+      "Bash(supabase functions list:*)",
+      "Bash(supabase link:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git remote -v)"
+    ]
   }
+}
