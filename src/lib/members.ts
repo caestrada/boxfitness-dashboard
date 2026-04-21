@@ -9,6 +9,7 @@ const memberPersonSchema = z.object({
 
 const memberOrganizationRowSchema = z.object({
   id: z.string().min(1),
+  organization_id: z.string().uuid(),
   status: z.enum(["lead", "active", "frozen", "inactive"]),
   membership_plan: z.string().nullable().optional(),
   joined_at: z.string().nullable().optional(),
@@ -20,6 +21,7 @@ const memberOrganizationRowSchema = z.object({
 export interface MemberDirectoryRow {
   id: string
   memberId: string
+  organizationId: string
   fullName: string
   email: string | null
   phone: string | null
@@ -67,6 +69,7 @@ export function parseMemberDirectoryRows(value: unknown) {
       {
         id: row.id,
         memberId: member.id,
+        organizationId: row.organization_id,
         fullName: member.full_name.trim(),
         email: normalizeOptionalString(member.email),
         phone: normalizeOptionalString(member.phone),

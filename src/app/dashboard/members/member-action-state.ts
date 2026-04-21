@@ -1,4 +1,4 @@
-export interface CreateMemberActionFieldErrors {
+export interface MemberActionFieldErrors {
   fullName?: string
   email?: string
   phone?: string
@@ -9,12 +9,16 @@ export interface CreateMemberActionFieldErrors {
   organizationId?: string
 }
 
-export interface CreateMemberActionState {
+export interface MemberActionState {
   status: "idle" | "error"
   message?: string
-  fieldErrors?: CreateMemberActionFieldErrors
+  fieldErrors?: MemberActionFieldErrors
 }
 
-export const initialCreateMemberActionState: CreateMemberActionState = {
+export const initialMemberActionState: MemberActionState = {
   status: "idle",
 }
+
+export type CreateMemberActionFieldErrors = MemberActionFieldErrors
+export type CreateMemberActionState = MemberActionState
+export const initialCreateMemberActionState = initialMemberActionState

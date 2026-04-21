@@ -17,6 +17,9 @@ import {
 } from "@/lib/dashboard"
 import { createClient } from "@/lib/supabase/server"
 
+const memberSecondaryButtonClassName =
+  "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+
 export default async function NewMemberPage() {
   const supabase = await createClient()
   const {
@@ -47,7 +50,7 @@ export default async function NewMemberPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6">
       <div className="flex items-center">
-        <Button asChild variant="outline">
+        <Button asChild className={memberSecondaryButtonClassName} variant="outline">
           <Link href="/dashboard/members">
             <ArrowLeft className="size-4" />
             Back to members

@@ -57,7 +57,7 @@ export default async function MembersPage() {
     const { data, error } = await supabase
       .from("member_organizations")
       .select(
-        "id, status, membership_plan, joined_at, last_visit_at, outstanding_balance_cents, member:members!member_organizations_member_id_fkey(id, full_name, email, phone)"
+        "id, organization_id, status, membership_plan, joined_at, last_visit_at, outstanding_balance_cents, member:members!member_organizations_member_id_fkey(id, full_name, email, phone)"
       )
       .eq("organization_id", activeGym.id)
       .order("joined_at", { ascending: false })

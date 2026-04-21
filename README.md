@@ -85,7 +85,8 @@ Open `http://localhost:3000`.
   `organization_members` with RLS
 - Gym-scoped members directory foundation with `members` plus
   `member_organizations` tables, a transactional member-creation RPC, and
-  RLS-aligned workspace reads
+  RLS-aligned workspace reads, member profile pages, and member editing from
+  the directory actions menu
 - TanStack React Query provider and Sonner toaster wiring
 - Light-first default theme with an optional dark mode toggle in profile settings
 - Profile editing supports full-name updates plus avatar uploads and removal,
@@ -104,6 +105,8 @@ Open `http://localhost:3000`.
   - `/auth/callback`
   - `/dashboard`
   - `/dashboard/members`
+  - `/dashboard/members/[membershipId]`
+  - `/dashboard/members/[membershipId]/edit`
   - `/dashboard/members/new`
   - `/dashboard/gyms/new`
   - `/dashboard/profile`

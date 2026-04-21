@@ -1,9 +1,19 @@
 "use client"
 
-import { ArrowUpDown } from "lucide-react"
+import Link from "next/link"
+import { ArrowUpDown, Ellipsis, Eye, PencilLine } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 
+import { MemberDeleteMenuItem } from "@/components/dashboard/member-delete-action"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { getMemberStatusMeta, type MemberDirectoryRow } from "@/lib/members"
 
@@ -30,6 +40,52 @@ function formatCurrency(valueInCents: number) {
     style: "currency",
     currency: "USD",
   }).format(valueInCents / 100)
+}
+
+function MemberRowActions({ member }: { member: MemberDirectoryRow }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          aria-label={`Open actions for ${member.fullName}`}
+          className="ml-auto flex size-8 items-center justify-center rounded-full"
+          size="icon-sm"
+          type="button"
+          variant="ghost"
+        >
+          <Ellipsis className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          asChild
+          className="text-primary focus:bg-primary/10 focus:text-primary"
+        >
+          <Link href={`/dashboard/members/${member.id}`}>
+            <Eye className="size-4" />
+            View Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          asChild
+          className="text-primary focus:bg-primary/10 focus:text-primary"
+        >
+          <Link href={`/dashboard/members/${member.id}/edit`}>
+            <PencilLine className="size-4" />
+            Edit Member
+          </Link>
+        </DropdownMenuItem>
+        <MemberDeleteMenuItem
+          memberId={member.memberId}
+          memberName={member.fullName}
+          membershipId={member.id}
+          organizationId={member.organizationId}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
 
 export const columns: ColumnDef<MemberDirectoryRow>[] = [
@@ -215,5 +271,9 @@ export const columns: ColumnDef<MemberDirectoryRow>[] = [
           : "$0.00"}
       </div>
     ),
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <MemberRowActions member={row.original} />,
   },
 ]
