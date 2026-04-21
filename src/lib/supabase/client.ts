@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { createBrowserClient } from "@supabase/ssr"
+import { createBrowserClient } from "@supabase/ssr";
 
-import { getSupabaseEnv } from "@/lib/env"
+import { getSupabaseEnv } from "@/lib/env";
 
-let browserClient: ReturnType<typeof createBrowserClient> | undefined
+let browserClient: ReturnType<typeof createBrowserClient> | undefined;
 
 export function createClient() {
-  const { supabaseUrl, supabasePublishableKey } = getSupabaseEnv()
+  const { supabaseUrl, supabasePublishableKey } = getSupabaseEnv();
 
-  browserClient ??= createBrowserClient(supabaseUrl, supabasePublishableKey)
+  browserClient ??= createBrowserClient(supabaseUrl, supabasePublishableKey);
 
-  return browserClient
+  return browserClient;
 }

@@ -1,4 +1,4 @@
-import { Cloud, KeyRound } from "lucide-react"
+import { Cloud, KeyRound } from "lucide-react";
 
 import {
   Card,
@@ -6,15 +6,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { MISSING_SUPABASE_ENV_MESSAGE } from "@/lib/env"
+} from "@/components/ui/card";
+import { MISSING_SUPABASE_ENV_MESSAGE } from "@/lib/env";
 
 const setupSteps = [
   "Create a new Supabase cloud project for the rebuild.",
   "Copy the project URL and publishable key into .env.local.",
   "Set the Site URL to http://localhost:3000 and add /auth/callback as a redirect URL.",
   "Apply the initial auth and organization migration from supabase/migrations.",
-]
+];
 
 export function SetupPanel() {
   return (
@@ -50,12 +50,12 @@ export function SetupPanel() {
             Required environment variables
           </div>
           <pre className="overflow-x-auto whitespace-pre-wrap break-all">
-{`NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+            {`NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000`}
           </pre>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,7 +1,5 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { startTransition, useEffect, useRef, useState } from "react"
 import {
   Check,
   ChevronDown,
@@ -10,46 +8,48 @@ import {
   LoaderCircle,
   RotateCcw,
   ShieldAlert,
-} from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { toast } from "sonner"
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { startTransition, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Dialog,
-  DialogFooter,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import type { BillingTierKey } from "@/lib/billing"
+} from "@/components/ui/dropdown-menu";
+import type { BillingTierKey } from "@/lib/billing";
 import {
   BILLING_PLAN_DEFINITIONS,
   BILLING_TIER_KEYS,
   getBillingStatusMeta,
   getCurrentBillingTier,
-} from "@/lib/billing"
-import type { DashboardBillingOrganization } from "@/lib/dashboard"
-import { cn } from "@/lib/utils"
+} from "@/lib/billing";
+import type { DashboardBillingOrganization } from "@/lib/dashboard";
+import { cn } from "@/lib/utils";
 
 interface OrganizationSubscriptionCardProps {
-  organization: DashboardBillingOrganization | null
-  billingConfigured: boolean
-  billingSyncFailed?: boolean
+  organization: DashboardBillingOrganization | null;
+  billingConfigured: boolean;
+  billingSyncFailed?: boolean;
 }
 
 const billingDateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -57,83 +57,86 @@ const billingDateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   year: "numeric",
   timeZone: "UTC",
-})
+});
 
 function formatBillingDate(value: string | null) {
   if (!value) {
-    return null
+    return null;
   }
 
-  const parsedDate = new Date(value)
+  const parsedDate = new Date(value);
   if (Number.isNaN(parsedDate.getTime())) {
-    return null
+    return null;
   }
 
-  return billingDateFormatter.format(parsedDate)
+  return billingDateFormatter.format(parsedDate);
 }
 
-function getStatusBadgeClassName(tone: ReturnType<typeof getBillingStatusMeta>["tone"]) {
+function getStatusBadgeClassName(
+  tone: ReturnType<typeof getBillingStatusMeta>["tone"],
+) {
   switch (tone) {
     case "success":
-      return "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+      return "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
     case "warning":
-      return "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+      return "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300";
     case "info":
-      return "border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-300"
+      return "border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-300";
     default:
-      return "border-border/70 bg-secondary/75 text-muted-foreground"
+      return "border-border/70 bg-secondary/75 text-muted-foreground";
   }
 }
 
 function getSubscriptionTimelineLabel(
   tier: BillingTierKey,
   formattedPeriodEnd: string | null,
-  subscriptionCancelAtPeriodEnd: boolean
+  subscriptionCancelAtPeriodEnd: boolean,
 ) {
   if (subscriptionCancelAtPeriodEnd && tier !== "free" && formattedPeriodEnd) {
-    return `Your plan changes to Free on ${formattedPeriodEnd}`
+    return `Your plan changes to Free on ${formattedPeriodEnd}`;
   }
 
   if (tier === "free") {
     return formattedPeriodEnd
       ? `Your previous billing period ended on ${formattedPeriodEnd}`
-      : "Your workspace is currently on Free"
+      : "Your workspace is currently on Free";
   }
 
   if (formattedPeriodEnd) {
-    return `Renews on ${formattedPeriodEnd}`
+    return `Renews on ${formattedPeriodEnd}`;
   }
 
-  return "Your workspace has full access on this plan"
+  return "Your workspace has full access on this plan";
 }
 
 class BillingRequestError extends Error {
-  status: number
+  status: number;
 
   constructor(status: number, message: string) {
-    super(message)
-    this.name = "BillingRequestError"
-    this.status = status
+    super(message);
+    this.name = "BillingRequestError";
+    this.status = status;
   }
 }
 
 async function getJsonPayload(response: Response) {
-  const payload = (await response.json().catch(() => null)) as
-    | { message?: string; url?: string }
-    | null
+  const payload = (await response.json().catch(() => null)) as {
+    message?: string;
+    url?: string;
+  } | null;
 
   if (!response.ok) {
     throw new BillingRequestError(
       response.status,
-      payload?.message ?? "The request could not be completed."
-    )
+      payload?.message ?? "The request could not be completed.",
+    );
   }
 
   if (!payload?.url) {
-    throw new Error("Stripe did not return a redirect URL.")
+    throw new Error("Stripe did not return a redirect URL.");
   }
 
-  return { url: payload.url }
+  return { url: payload.url };
 }
 
 export function OrganizationSubscriptionCard({
@@ -141,98 +144,112 @@ export function OrganizationSubscriptionCard({
   billingConfigured,
   billingSyncFailed = false,
 }: OrganizationSubscriptionCardProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [plansOpen, setPlansOpen] = useState(false)
-  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false)
-  const [renewConfirmOpen, setRenewConfirmOpen] = useState(false)
-  const [pendingTier, setPendingTier] = useState<Exclude<BillingTierKey, "free"> | null>(null)
-  const [portalTarget, setPortalTarget] = useState<"manage" | BillingTierKey | null>(null)
-  const [cancelPending, setCancelPending] = useState(false)
-  const [renewPending, setRenewPending] = useState(false)
-  const [optimisticCancelAtPeriodEnd, setOptimisticCancelAtPeriodEnd] = useState(false)
-  const handledBillingStateRef = useRef<string | null>(null)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [plansOpen, setPlansOpen] = useState(false);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const [renewConfirmOpen, setRenewConfirmOpen] = useState(false);
+  const [pendingTier, setPendingTier] = useState<Exclude<
+    BillingTierKey,
+    "free"
+  > | null>(null);
+  const [portalTarget, setPortalTarget] = useState<
+    "manage" | BillingTierKey | null
+  >(null);
+  const [cancelPending, setCancelPending] = useState(false);
+  const [renewPending, setRenewPending] = useState(false);
+  const [optimisticCancelAtPeriodEnd, setOptimisticCancelAtPeriodEnd] =
+    useState(false);
+  const handledBillingStateRef = useRef<string | null>(null);
 
   const displayOrganization = organization
     ? {
         ...organization,
         subscriptionCancelAtPeriodEnd:
-          organization.subscriptionCancelAtPeriodEnd || optimisticCancelAtPeriodEnd,
+          organization.subscriptionCancelAtPeriodEnd ||
+          optimisticCancelAtPeriodEnd,
       }
-    : null
-  const currentTier = getCurrentBillingTier(displayOrganization)
-  const currentPlan = BILLING_PLAN_DEFINITIONS[currentTier]
-  const statusMeta = getBillingStatusMeta(displayOrganization)
+    : null;
+  const currentTier = getCurrentBillingTier(displayOrganization);
+  const currentPlan = BILLING_PLAN_DEFINITIONS[currentTier];
+  const statusMeta = getBillingStatusMeta(displayOrganization);
   const formattedPeriodEnd = formatBillingDate(
-    displayOrganization?.subscriptionCurrentPeriodEnd ?? null
-  )
-  const isOwner = organization?.role === "owner"
-  const canManageBilling = Boolean(organization && isOwner)
+    displayOrganization?.subscriptionCurrentPeriodEnd ?? null,
+  );
+  const isOwner = organization?.role === "owner";
+  const canManageBilling = Boolean(organization && isOwner);
   const canOpenPortal = Boolean(
     organization &&
       currentTier !== "free" &&
       canManageBilling &&
       billingConfigured &&
-      organization.stripeCustomerId
-  )
-  const portalPending = portalTarget !== null
-  const actionPending = portalPending || renewPending || cancelPending
-  const requiresPortalForPlanChanges = currentTier !== "free"
+      organization.stripeCustomerId,
+  );
+  const portalPending = portalTarget !== null;
+  const actionPending = portalPending || renewPending || cancelPending;
+  const requiresPortalForPlanChanges = currentTier !== "free";
   const isScheduledCancellation = Boolean(
-    displayOrganization?.subscriptionCancelAtPeriodEnd && currentTier !== "free"
-  )
+    displayOrganization?.subscriptionCancelAtPeriodEnd &&
+      currentTier !== "free",
+  );
   const subscriptionTimelineLabel = getSubscriptionTimelineLabel(
     currentTier,
     formattedPeriodEnd,
-    Boolean(displayOrganization?.subscriptionCancelAtPeriodEnd)
-  )
-  const showManageMenu = Boolean(organization && currentTier !== "free")
-  const showRenewAction = isScheduledCancellation
+    Boolean(displayOrganization?.subscriptionCancelAtPeriodEnd),
+  );
+  const showManageMenu = Boolean(organization && currentTier !== "free");
+  const showRenewAction = isScheduledCancellation;
   const renewConfirmationLabel = formattedPeriodEnd
     ? `Your current ${currentPlan.name} subscription will auto-renew on ${formattedPeriodEnd}.`
-    : `Your current ${currentPlan.name} subscription will continue renewing automatically.`
+    : `Your current ${currentPlan.name} subscription will continue renewing automatically.`;
   const cancelConfirmationLabel = formattedPeriodEnd
     ? `Your current ${currentPlan.name} subscription will end on ${formattedPeriodEnd}.`
-    : `Your current ${currentPlan.name} subscription will end at the close of the current billing period.`
+    : `Your current ${currentPlan.name} subscription will end at the close of the current billing period.`;
 
   useEffect(() => {
-    const billingState = searchParams.get("billing")
+    const billingState = searchParams.get("billing");
 
     if (!billingState || handledBillingStateRef.current === billingState) {
-      return
+      return;
     }
 
-    handledBillingStateRef.current = billingState
+    handledBillingStateRef.current = billingState;
 
     if (billingState === "success") {
-      toast.success("Checkout completed. Stripe may take a few seconds to sync the updated plan.")
+      toast.success(
+        "Checkout completed. Stripe may take a few seconds to sync the updated plan.",
+      );
     } else if (billingState === "plan-updated") {
-      toast.success("Plan change confirmed. Stripe may take a few seconds to sync the update.")
+      toast.success(
+        "Plan change confirmed. Stripe may take a few seconds to sync the update.",
+      );
     } else if (billingState === "cancel-scheduled") {
-      setOptimisticCancelAtPeriodEnd(true)
-      toast.success("Cancellation scheduled. The workspace stays paid until the current period ends.")
+      setOptimisticCancelAtPeriodEnd(true);
+      toast.success(
+        "Cancellation scheduled. The workspace stays paid until the current period ends.",
+      );
     } else if (billingState === "canceled") {
-      toast.info("Checkout was canceled.")
+      toast.info("Checkout was canceled.");
     }
 
-    const nextSearchParams = new URLSearchParams(searchParams.toString())
-    nextSearchParams.delete("billing")
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    nextSearchParams.delete("billing");
     const nextUrl = nextSearchParams.toString()
       ? `/dashboard/profile?${nextSearchParams.toString()}`
-      : "/dashboard/profile"
+      : "/dashboard/profile";
 
     startTransition(() => {
-      router.replace(nextUrl, { scroll: false })
-      router.refresh()
-    })
-  }, [router, searchParams])
+      router.replace(nextUrl, { scroll: false });
+      router.refresh();
+    });
+  }, [router, searchParams]);
 
   async function handleCheckout(tier: Exclude<BillingTierKey, "free">) {
     if (!organization) {
-      return
+      return;
     }
 
-    setPendingTier(tier)
+    setPendingTier(tier);
 
     try {
       const response = await fetch("/api/billing/checkout", {
@@ -244,33 +261,35 @@ export function OrganizationSubscriptionCard({
           organizationId: organization.id,
           tier,
         }),
-      })
-      const payload = await getJsonPayload(response)
+      });
+      const payload = await getJsonPayload(response);
 
-      window.location.assign(payload.url)
+      window.location.assign(payload.url);
     } catch (error) {
       if (error instanceof BillingRequestError && error.status === 409) {
-        setPlansOpen(false)
+        setPlansOpen(false);
 
         startTransition(() => {
-          router.refresh()
-        })
+          router.refresh();
+        });
       }
 
       const message =
-        error instanceof Error ? error.message : "Stripe Checkout could not be started."
-      toast.error(message)
+        error instanceof Error
+          ? error.message
+          : "Stripe Checkout could not be started.";
+      toast.error(message);
     } finally {
-      setPendingTier(null)
+      setPendingTier(null);
     }
   }
 
   async function handleManageSubscription(targetTier?: BillingTierKey) {
     if (!organization) {
-      return
+      return;
     }
 
-    setPortalTarget(targetTier ?? "manage")
+    setPortalTarget(targetTier ?? "manage");
 
     try {
       const response = await fetch("/api/billing/portal", {
@@ -282,27 +301,27 @@ export function OrganizationSubscriptionCard({
           organizationId: organization.id,
           targetTier,
         }),
-      })
-      const payload = await getJsonPayload(response)
+      });
+      const payload = await getJsonPayload(response);
 
-      window.location.assign(payload.url)
+      window.location.assign(payload.url);
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Stripe Billing Portal could not be opened."
-      toast.error(message)
+          : "Stripe Billing Portal could not be opened.";
+      toast.error(message);
     } finally {
-      setPortalTarget(null)
+      setPortalTarget(null);
     }
   }
 
   async function handleRenewSubscription() {
     if (!organization) {
-      return
+      return;
     }
 
-    setRenewPending(true)
+    setRenewPending(true);
 
     try {
       const response = await fetch("/api/billing/renew", {
@@ -313,43 +332,48 @@ export function OrganizationSubscriptionCard({
         body: JSON.stringify({
           organizationId: organization.id,
         }),
-      })
-      const payload = (await response.json().catch(() => null)) as { message?: string } | null
+      });
+      const payload = (await response.json().catch(() => null)) as {
+        message?: string;
+      } | null;
 
       if (!response.ok) {
         throw new BillingRequestError(
           response.status,
-          payload?.message ?? "The plan could not be renewed."
-        )
+          payload?.message ?? "The plan could not be renewed.",
+        );
       }
 
-      setRenewConfirmOpen(false)
-      setOptimisticCancelAtPeriodEnd(false)
-      toast.success(`${currentPlan.name} plan renewed.`)
+      setRenewConfirmOpen(false);
+      setOptimisticCancelAtPeriodEnd(false);
+      toast.success(`${currentPlan.name} plan renewed.`);
 
       startTransition(() => {
-        router.refresh()
-      })
+        router.refresh();
+      });
     } catch (error) {
       if (error instanceof BillingRequestError && error.status === 409) {
         startTransition(() => {
-          router.refresh()
-        })
+          router.refresh();
+        });
       }
 
-      const message = error instanceof Error ? error.message : "The plan could not be renewed."
-      toast.error(message)
+      const message =
+        error instanceof Error
+          ? error.message
+          : "The plan could not be renewed.";
+      toast.error(message);
     } finally {
-      setRenewPending(false)
+      setRenewPending(false);
     }
   }
 
   async function handleCancelSubscription() {
     if (!organization) {
-      return
+      return;
     }
 
-    setCancelPending(true)
+    setCancelPending(true);
 
     try {
       const response = await fetch("/api/billing/cancel", {
@@ -360,46 +384,51 @@ export function OrganizationSubscriptionCard({
         body: JSON.stringify({
           organizationId: organization.id,
         }),
-      })
-      const payload = (await response.json().catch(() => null)) as { message?: string } | null
+      });
+      const payload = (await response.json().catch(() => null)) as {
+        message?: string;
+      } | null;
 
       if (!response.ok) {
         throw new BillingRequestError(
           response.status,
-          payload?.message ?? "The plan could not be canceled."
-        )
+          payload?.message ?? "The plan could not be canceled.",
+        );
       }
 
-      setCancelConfirmOpen(false)
-      setOptimisticCancelAtPeriodEnd(true)
-      toast.success("Cancellation scheduled.")
+      setCancelConfirmOpen(false);
+      setOptimisticCancelAtPeriodEnd(true);
+      toast.success("Cancellation scheduled.");
 
       startTransition(() => {
-        router.refresh()
-      })
+        router.refresh();
+      });
     } catch (error) {
       if (error instanceof BillingRequestError && error.status === 409) {
         startTransition(() => {
-          router.refresh()
-        })
+          router.refresh();
+        });
       }
 
-      const message = error instanceof Error ? error.message : "The plan could not be canceled."
-      toast.error(message)
+      const message =
+        error instanceof Error
+          ? error.message
+          : "The plan could not be canceled.";
+      toast.error(message);
     } finally {
-      setCancelPending(false)
+      setCancelPending(false);
     }
   }
 
   function renderPlanAction(tierKey: BillingTierKey) {
-    const isCurrentPlan = tierKey === currentTier
+    const isCurrentPlan = tierKey === currentTier;
 
     if (isCurrentPlan) {
       return (
         <Button className="w-full" disabled size="sm" variant="outline">
           Your current plan
         </Button>
-      )
+      );
     }
 
     if (!canManageBilling) {
@@ -407,7 +436,7 @@ export function OrganizationSubscriptionCard({
         <Button className="w-full" disabled size="sm" variant="outline">
           Owner managed
         </Button>
-      )
+      );
     }
 
     if (!billingConfigured) {
@@ -415,15 +444,15 @@ export function OrganizationSubscriptionCard({
         <Button className="w-full" disabled size="sm" variant="outline">
           Stripe setup required
         </Button>
-      )
+      );
     }
 
     if (requiresPortalForPlanChanges) {
       const planActionLabel =
         tierKey === "free"
           ? "Downgrade to Free"
-          : `Switch to ${BILLING_PLAN_DEFINITIONS[tierKey].name}`
-      const isPlanPortalPending = portalTarget === tierKey
+          : `Switch to ${BILLING_PLAN_DEFINITIONS[tierKey].name}`;
+      const isPlanPortalPending = portalTarget === tierKey;
 
       return (
         <Button
@@ -447,7 +476,7 @@ export function OrganizationSubscriptionCard({
             "Waiting for sync"
           )}
         </Button>
-      )
+      );
     }
 
     if (tierKey === "free") {
@@ -455,10 +484,10 @@ export function OrganizationSubscriptionCard({
         <Button className="w-full" disabled size="sm" variant="outline">
           Your current plan
         </Button>
-      )
+      );
     }
 
-    const isPending = pendingTier === tierKey
+    const isPending = pendingTier === tierKey;
 
     return (
       <Button
@@ -477,7 +506,7 @@ export function OrganizationSubscriptionCard({
           `Choose ${BILLING_PLAN_DEFINITIONS[tierKey].name}`
         )}
       </Button>
-    )
+    );
   }
 
   return (
@@ -490,9 +519,12 @@ export function OrganizationSubscriptionCard({
             </div>
 
             <div className="space-y-2">
-              <CardTitle className="text-2xl">Box Fitness Subscription</CardTitle>
+              <CardTitle className="text-2xl">
+                Box Fitness Subscription
+              </CardTitle>
               <CardDescription className="max-w-2xl leading-7">
-                Manage your Box Fitness platform subscription for the active workspace.
+                Manage your Box Fitness platform subscription for the active
+                workspace.
               </CardDescription>
             </div>
           </div>
@@ -502,8 +534,8 @@ export function OrganizationSubscriptionCard({
           {!organization ? (
             <div className="app-subpanel space-y-4 p-5">
               <p className="text-sm leading-7 text-muted-foreground">
-                Create your first gym workspace before subscription management becomes
-                available.
+                Create your first gym workspace before subscription management
+                becomes available.
               </p>
               <Button asChild size="sm">
                 <Link href="/dashboard/gyms/new">Create gym workspace</Link>
@@ -522,7 +554,7 @@ export function OrganizationSubscriptionCard({
                       <span
                         className={cn(
                           "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
-                          getStatusBadgeClassName(statusMeta.tone)
+                          getStatusBadgeClassName(statusMeta.tone),
                         )}
                       >
                         {statusMeta.label}
@@ -554,7 +586,11 @@ export function OrganizationSubscriptionCard({
                       <DropdownMenuTrigger asChild>
                         <Button
                           className="min-w-[11rem] justify-between px-5 shadow-none"
-                          disabled={!canManageBilling || !billingConfigured || actionPending}
+                          disabled={
+                            !canManageBilling ||
+                            !billingConfigured ||
+                            actionPending
+                          }
                           size="lg"
                           variant="outline"
                         >
@@ -572,7 +608,10 @@ export function OrganizationSubscriptionCard({
                         </Button>
                       </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end" className="w-80 rounded-[2rem] p-3">
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-80 rounded-[2rem] p-3"
+                      >
                         <DropdownMenuItem
                           className="surface-control gap-3 rounded-[1.25rem] px-5 py-4 text-[1.05rem]"
                           onSelect={() => setPlansOpen(true)}
@@ -597,7 +636,9 @@ export function OrganizationSubscriptionCard({
                             onSelect={() => setCancelConfirmOpen(true)}
                           >
                             <ShieldAlert className="size-4" />
-                            <span className="font-medium">Cancel subscription</span>
+                            <span className="font-medium">
+                              Cancel subscription
+                            </span>
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -622,9 +663,9 @@ export function OrganizationSubscriptionCard({
 
               {canManageBilling && !billingConfigured ? (
                 <div className="rounded-[1.5rem] border border-amber-500/20 bg-amber-500/10 p-4 text-sm leading-7 text-amber-800 dark:text-amber-200">
-                  Stripe billing is not fully configured in this environment yet. Add
-                  the Stripe and Supabase admin environment variables to enable plan
-                  changes.
+                  Stripe billing is not fully configured in this environment
+                  yet. Add the Stripe and Supabase admin environment variables
+                  to enable plan changes.
                 </div>
               ) : null}
 
@@ -633,15 +674,15 @@ export function OrganizationSubscriptionCard({
               currentTier !== "free" &&
               !organization.stripeCustomerId ? (
                 <div className="rounded-[1.5rem] border border-sky-500/20 bg-sky-500/10 p-4 text-sm leading-7 text-sky-800 dark:text-sky-200">
-                  Stripe is still syncing this subscription. Portal access will unlock as
-                  soon as the webhook updates the workspace record.
+                  Stripe is still syncing this subscription. Portal access will
+                  unlock as soon as the webhook updates the workspace record.
                 </div>
               ) : null}
 
               {billingSyncFailed ? (
                 <div className="rounded-[1.5rem] border border-amber-500/20 bg-amber-500/10 p-4 text-sm leading-7 text-amber-800 dark:text-amber-200">
-                  Stripe billing could not be refreshed during this page load, so the
-                  subscription state shown here may be stale.
+                  Stripe billing could not be refreshed during this page load,
+                  so the subscription state shown here may be stale.
                 </div>
               ) : null}
             </>
@@ -662,15 +703,15 @@ export function OrganizationSubscriptionCard({
 
           <div className="grid gap-4 lg:grid-cols-3">
             {BILLING_TIER_KEYS.map((tierKey) => {
-              const plan = BILLING_PLAN_DEFINITIONS[tierKey]
-              const isCurrentPlan = tierKey === currentTier
+              const plan = BILLING_PLAN_DEFINITIONS[tierKey];
+              const isCurrentPlan = tierKey === currentTier;
 
               return (
                 <div
                   key={tierKey}
                   className={cn(
                     "relative flex flex-col rounded-[1.75rem] border border-border/70 bg-card p-6 pt-8 shadow-[0_20px_48px_-36px_rgba(15,23,42,0.18)]",
-                    isCurrentPlan && "border-primary/40 bg-primary/[0.06]"
+                    isCurrentPlan && "border-primary/40 bg-primary/[0.06]",
                   )}
                 >
                   {isCurrentPlan ? (
@@ -686,7 +727,9 @@ export function OrganizationSubscriptionCard({
                       {plan.name}
                     </p>
                     <div className="mt-4 flex items-start gap-2">
-                      <span className="pt-1 text-sm text-muted-foreground">$</span>
+                      <span className="pt-1 text-sm text-muted-foreground">
+                        $
+                      </span>
                       <p className="text-5xl font-semibold tracking-[-0.06em] text-foreground">
                         {plan.monthlyPrice}
                       </p>
@@ -702,14 +745,17 @@ export function OrganizationSubscriptionCard({
 
                   <div className="mt-7 space-y-3">
                     {plan.features.map((feature) => (
-                      <div key={feature} className="flex gap-3 text-sm leading-6 text-muted-foreground">
+                      <div
+                        key={feature}
+                        className="flex gap-3 text-sm leading-6 text-muted-foreground"
+                      >
                         <Check className="mt-1 size-4 shrink-0 text-primary" />
                         <span>{feature}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
 
@@ -724,7 +770,6 @@ export function OrganizationSubscriptionCard({
               Workspace billing is limited to owners.
             </div>
           ) : null}
-
         </DialogContent>
       </Dialog>
 
@@ -765,7 +810,11 @@ export function OrganizationSubscriptionCard({
             >
               Cancel
             </Button>
-            <Button disabled={renewPending} onClick={handleRenewSubscription} size="lg">
+            <Button
+              disabled={renewPending}
+              onClick={handleRenewSubscription}
+              size="lg"
+            >
               {renewPending ? (
                 <>
                   <LoaderCircle className="size-4 animate-spin" />
@@ -816,7 +865,11 @@ export function OrganizationSubscriptionCard({
             >
               Keep plan
             </Button>
-            <Button disabled={cancelPending} onClick={handleCancelSubscription} size="lg">
+            <Button
+              disabled={cancelPending}
+              onClick={handleCancelSubscription}
+              size="lg"
+            >
               {cancelPending ? (
                 <>
                   <LoaderCircle className="size-4 animate-spin" />
@@ -830,5 +883,5 @@ export function OrganizationSubscriptionCard({
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

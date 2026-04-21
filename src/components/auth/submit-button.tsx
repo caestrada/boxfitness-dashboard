@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { LoaderCircle } from "lucide-react"
-import type { ReactNode } from "react"
-import { useFormStatus } from "react-dom"
+import { LoaderCircle } from "lucide-react";
+import type { ReactNode } from "react";
+import { useFormStatus } from "react-dom";
 
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface SubmitButtonProps {
-  children: ReactNode
-  className?: string
-  pendingLabel: string
+  children: ReactNode;
+  className?: string;
+  pendingLabel: string;
 }
 
 export function SubmitButton({
@@ -18,7 +18,7 @@ export function SubmitButton({
   className,
   pendingLabel,
 }: SubmitButtonProps) {
-  const { pending } = useFormStatus()
+  const { pending } = useFormStatus();
 
   return (
     <Button
@@ -36,5 +36,5 @@ export function SubmitButton({
         children
       )}
     </Button>
-  )
+  );
 }

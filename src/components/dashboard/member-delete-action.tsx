@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
-import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
-import { CircleAlert, Trash2 } from "lucide-react"
-import { toast } from "sonner"
+import { CircleAlert, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
-import { deleteMemberAction } from "@/app/dashboard/members/actions"
-import { Button } from "@/components/ui/button"
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { deleteMemberAction } from "@/app/dashboard/members/actions";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -15,25 +14,26 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface BaseMemberDeleteActionProps {
-  memberId: string
-  memberName: string
-  membershipId: string
-  organizationId: string
+  memberId: string;
+  memberName: string;
+  membershipId: string;
+  organizationId: string;
 }
 
 interface MemberDeleteButtonProps extends BaseMemberDeleteActionProps {
-  redirectTo?: string
+  redirectTo?: string;
 }
 
 interface MemberDeleteMenuItemProps extends BaseMemberDeleteActionProps {
-  redirectTo?: string
+  redirectTo?: string;
 }
 
 function getDeleteConfirmation(memberName: string) {
-  return `Delete ${memberName} from this gym?`
+  return `Delete ${memberName} from this gym?`;
 }
 
 function useDeleteMember({
@@ -42,9 +42,9 @@ function useDeleteMember({
   organizationId,
   redirectTo,
 }: BaseMemberDeleteActionProps & { redirectTo?: string }) {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
-  const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false);
 
   function confirmDelete() {
     startTransition(async () => {
@@ -52,23 +52,23 @@ function useDeleteMember({
         memberId,
         membershipId,
         organizationId,
-      })
+      });
 
       if (result.status === "error") {
-        toast.error(result.message)
-        return
+        toast.error(result.message);
+        return;
       }
 
-      setIsOpen(false)
-      toast.success(result.message)
+      setIsOpen(false);
+      toast.success(result.message);
 
       if (redirectTo) {
-        router.replace(redirectTo)
-        return
+        router.replace(redirectTo);
+        return;
       }
 
-      router.refresh()
-    })
+      router.refresh();
+    });
   }
 
   return {
@@ -76,7 +76,7 @@ function useDeleteMember({
     isPending,
     isOpen,
     setIsOpen,
-  }
+  };
 }
 
 export function MemberDeleteButton({
@@ -92,7 +92,7 @@ export function MemberDeleteButton({
     membershipId,
     organizationId,
     redirectTo,
-  })
+  });
 
   return (
     <>
@@ -115,7 +115,7 @@ export function MemberDeleteButton({
         onOpenChange={setIsOpen}
       />
     </>
-  )
+  );
 }
 
 export function MemberDeleteMenuItem({
@@ -131,7 +131,7 @@ export function MemberDeleteMenuItem({
     membershipId,
     organizationId,
     redirectTo,
-  })
+  });
 
   return (
     <>
@@ -139,8 +139,8 @@ export function MemberDeleteMenuItem({
         className="text-primary focus:bg-primary/10 focus:text-primary"
         disabled={isPending}
         onSelect={(event) => {
-          event.preventDefault()
-          setIsOpen(true)
+          event.preventDefault();
+          setIsOpen(true);
         }}
       >
         <Trash2 className="size-4" />
@@ -155,7 +155,7 @@ export function MemberDeleteMenuItem({
         onOpenChange={setIsOpen}
       />
     </>
-  )
+  );
 }
 
 function DeleteMemberDialog({
@@ -165,24 +165,27 @@ function DeleteMemberDialog({
   onConfirm,
   onOpenChange,
 }: {
-  isOpen: boolean
-  isPending: boolean
-  memberName: string
-  onConfirm: () => void
-  onOpenChange: (open: boolean) => void
+  isOpen: boolean;
+  isPending: boolean;
+  memberName: string;
+  onConfirm: () => void;
+  onOpenChange: (open: boolean) => void;
 }) {
   return (
     <Dialog onOpenChange={onOpenChange} open={isOpen}>
-      <DialogContent className="w-[min(calc(100vw-2rem),32rem)]" showCloseButton={false}>
+      <DialogContent
+        className="w-[min(calc(100vw-2rem),32rem)]"
+        showCloseButton={false}
+      >
         <DialogHeader className="gap-3">
           <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
             <CircleAlert className="size-5" />
           </div>
           <DialogTitle>Remove member</DialogTitle>
           <DialogDescription>
-            {getDeleteConfirmation(memberName)} This action removes the member from the
-            active gym. If they are not attached to any other gym, their person record
-            will also be deleted.
+            {getDeleteConfirmation(memberName)} This action removes the member
+            from the active gym. If they are not attached to any other gym,
+            their person record will also be deleted.
           </DialogDescription>
         </DialogHeader>
 
@@ -208,5 +211,5 @@ function DeleteMemberDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

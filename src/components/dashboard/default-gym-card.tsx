@@ -1,38 +1,38 @@
-"use client"
+"use client";
 
-import { startTransition, useActionState, useEffect, useRef } from "react"
-import { useFormStatus } from "react-dom"
-import { Building2, LoaderCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+import { Building2, LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { startTransition, useActionState, useEffect, useRef } from "react";
+import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
 
-import { updateDefaultGymAction } from "@/app/dashboard/actions"
-import { initialDefaultGymActionState } from "@/app/dashboard/default-gym-action-state"
-import { Button } from "@/components/ui/button"
+import { updateDefaultGymAction } from "@/app/dashboard/actions";
+import { initialDefaultGymActionState } from "@/app/dashboard/default-gym-action-state";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import type { DashboardGym } from "@/lib/dashboard"
+} from "@/components/ui/select";
+import type { DashboardGym } from "@/lib/dashboard";
 
 interface DefaultGymCardProps {
-  defaultOrganizationId: string | null
-  gyms: DashboardGym[]
+  defaultOrganizationId: string | null;
+  gyms: DashboardGym[];
 }
 
 function DefaultGymSaveButton() {
-  const { pending } = useFormStatus()
+  const { pending } = useFormStatus();
 
   return (
     <Button disabled={pending} size="sm" type="submit" variant="outline">
@@ -45,55 +45,55 @@ function DefaultGymSaveButton() {
         "Save default gym"
       )}
     </Button>
-  )
+  );
 }
 
 export function DefaultGymCard({
   defaultOrganizationId,
   gyms,
 }: DefaultGymCardProps) {
-  const router = useRouter()
+  const router = useRouter();
   const [defaultGymState, defaultGymFormAction] = useActionState(
     updateDefaultGymAction,
-    initialDefaultGymActionState
-  )
-  const defaultGymInputRef = useRef<HTMLInputElement>(null)
-  const lastHandledSubmissionIdRef = useRef<string | null>(null)
+    initialDefaultGymActionState,
+  );
+  const defaultGymInputRef = useRef<HTMLInputElement>(null);
+  const lastHandledSubmissionIdRef = useRef<string | null>(null);
 
   const resolvedDefaultOrganizationId =
     (defaultGymState.status === "success"
-      ? defaultGymState.defaultOrganizationId ?? null
+      ? (defaultGymState.defaultOrganizationId ?? null)
       : defaultOrganizationId) ??
     gyms[0]?.id ??
-    null
+    null;
 
   useEffect(() => {
     if (!defaultGymState.message || !defaultGymState.submissionId) {
-      return
+      return;
     }
 
     if (lastHandledSubmissionIdRef.current === defaultGymState.submissionId) {
-      return
+      return;
     }
 
-    lastHandledSubmissionIdRef.current = defaultGymState.submissionId
+    lastHandledSubmissionIdRef.current = defaultGymState.submissionId;
 
     if (defaultGymState.status === "error") {
-      toast.error(defaultGymState.message)
-      return
+      toast.error(defaultGymState.message);
+      return;
     }
 
-    toast.success(defaultGymState.message)
+    toast.success(defaultGymState.message);
 
     startTransition(() => {
-      router.refresh()
-    })
+      router.refresh();
+    });
   }, [
     defaultGymState.message,
     defaultGymState.status,
     defaultGymState.submissionId,
     router,
-  ])
+  ]);
 
   return (
     <Card className="border-border/70 bg-card">
@@ -132,12 +132,14 @@ export function DefaultGymCard({
                 defaultValue={resolvedDefaultOrganizationId ?? ""}
                 onValueChange={(value) => {
                   if (defaultGymInputRef.current) {
-                    defaultGymInputRef.current.value = value
+                    defaultGymInputRef.current.value = value;
                   }
                 }}
               >
                 <SelectTrigger
-                  aria-invalid={Boolean(defaultGymState.fieldErrors?.organizationId)}
+                  aria-invalid={Boolean(
+                    defaultGymState.fieldErrors?.organizationId,
+                  )}
                   className="h-11 w-full rounded-[1rem] bg-white/80 px-4 dark:bg-input/90"
                   id="profile-default-gym"
                 >
@@ -191,5 +193,5 @@ export function DefaultGymCard({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { ArrowLeft, Building2, ShieldCheck, Sparkles } from "lucide-react"
+import { ArrowLeft, Building2, ShieldCheck, Sparkles } from "lucide-react";
+import Link from "next/link";
 
-import { CreateGymForm } from "@/components/dashboard/create-gym-form"
-import { Button } from "@/components/ui/button"
+import { CreateGymForm } from "@/components/dashboard/create-gym-form";
+import { Button } from "@/components/ui/button";
 
 const workspacePreviewRows = [
   {
@@ -17,13 +17,13 @@ const workspacePreviewRows = [
     label: "Modules enabled next",
     value: "Members, classes, billing, analytics",
   },
-] as const
+] as const;
 
 const guardrails = [
   "This creates the gym shell only, not a full legacy migration.",
   "The new location appears in the switcher immediately after the server action succeeds.",
   "Every future feature module can attach to the right organization boundary from day one.",
-] as const
+] as const;
 
 export default function CreateGymPage() {
   return (
@@ -56,9 +56,9 @@ export default function CreateGymPage() {
                   Add the next Box Fitness location.
                 </h1>
                 <p className="max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-                  Creating a gym establishes the organization boundary first. Members,
-                  classes, billing, and analytics can then be rebuilt on top of that
-                  workspace intentionally.
+                  Creating a gym establishes the organization boundary first.
+                  Members, classes, billing, and analytics can then be rebuilt
+                  on top of that workspace intentionally.
                 </p>
               </div>
             </div>
@@ -79,8 +79,8 @@ export default function CreateGymPage() {
               New location packet
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              This is the first layer the system creates when a new gym is added to the
-              Box Fitness control plane.
+              This is the first layer the system creates when a new gym is added
+              to the Box Fitness control plane.
             </p>
 
             <div className="mt-6 space-y-3">
@@ -101,10 +101,12 @@ export default function CreateGymPage() {
               <div className="app-subpanel flex gap-3 p-4">
                 <Sparkles className="mt-0.5 size-4 text-primary" />
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Cleaner rollout</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    Cleaner rollout
+                  </p>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    Create the gym shell first and let the workflow list grow from real
-                    product decisions.
+                    Create the gym shell first and let the workflow list grow
+                    from real product decisions.
                   </p>
                 </div>
               </div>
@@ -112,10 +114,12 @@ export default function CreateGymPage() {
               <div className="app-subpanel flex gap-3 p-4">
                 <ShieldCheck className="mt-0.5 size-4 text-primary" />
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Protected start</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    Protected start
+                  </p>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    The new workspace appears inside the authenticated shell, not in mock
-                    client-only state.
+                    The new workspace appears inside the authenticated shell,
+                    not in mock client-only state.
                   </p>
                 </div>
               </div>
@@ -130,7 +134,9 @@ export default function CreateGymPage() {
                   <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-mono text-sm text-primary">
                     0{index + 1}
                   </div>
-                  <p className="text-sm leading-7 text-muted-foreground">{item}</p>
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    {item}
+                  </p>
                 </div>
               ))}
             </div>
@@ -138,5 +144,5 @@ export default function CreateGymPage() {
         </section>
       </section>
     </div>
-  )
+  );
 }

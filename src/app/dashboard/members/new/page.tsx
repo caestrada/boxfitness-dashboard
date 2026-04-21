@@ -1,33 +1,33 @@
-import Link from "next/link"
-import { redirect } from "next/navigation"
-import { ArrowLeft, UserPlus } from "lucide-react"
+import { ArrowLeft, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { AddMemberForm } from "@/components/dashboard/add-member-form"
-import { Button } from "@/components/ui/button"
+import { AddMemberForm } from "@/components/dashboard/add-member-form";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   parseDashboardGyms,
   parseDashboardProfile,
   resolveActiveGym,
-} from "@/lib/dashboard"
-import { createClient } from "@/lib/supabase/server"
+} from "@/lib/dashboard";
+import { createClient } from "@/lib/supabase/server";
 
 const memberSecondaryButtonClassName =
-  "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+  "border-primary/25 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary";
 
 export default async function NewMemberPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth?redirectTo=/dashboard/members/new")
+    redirect("/auth?redirectTo=/dashboard/members/new");
   }
 
   const [{ data: profileRow }, { data: gymRows }] = await Promise.all([
@@ -41,16 +41,20 @@ export default async function NewMemberPage() {
       .select("id, name, slug")
       .is("archived_at", null)
       .order("name"),
-  ])
+  ]);
 
-  const gyms = parseDashboardGyms(gymRows)
-  const profile = parseDashboardProfile(profileRow, user.email ?? null)
-  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId)
+  const gyms = parseDashboardGyms(gymRows);
+  const profile = parseDashboardProfile(profileRow, user.email ?? null);
+  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6">
       <div className="flex items-center">
-        <Button asChild className={memberSecondaryButtonClassName} variant="outline">
+        <Button
+          asChild
+          className={memberSecondaryButtonClassName}
+          variant="outline"
+        >
           <Link href="/dashboard/members">
             <ArrowLeft className="size-4" />
             Back to members
@@ -70,8 +74,8 @@ export default async function NewMemberPage() {
                 <div className="space-y-2">
                   <CardTitle className="text-2xl">Add member</CardTitle>
                   <CardDescription className="max-w-2xl leading-7">
-                    Add a new member to {activeGym.name}. The record will be created
-                    inside the current active gym workspace.
+                    Add a new member to {activeGym.name}. The record will be
+                    created inside the current active gym workspace.
                   </CardDescription>
                 </div>
               </div>
@@ -88,12 +92,12 @@ export default async function NewMemberPage() {
           <CardHeader>
             <CardTitle className="text-2xl">Create a gym first</CardTitle>
             <CardDescription className="leading-7">
-              Members must be created inside an active gym workspace. Add a gym and
-              set it as the active workspace before using this form.
+              Members must be created inside an active gym workspace. Add a gym
+              and set it as the active workspace before using this form.
             </CardDescription>
           </CardHeader>
         </Card>
       )}
     </div>
-  )
+  );
 }

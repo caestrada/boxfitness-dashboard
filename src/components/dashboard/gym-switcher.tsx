@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import { startTransition, useActionState, useEffect, useRef } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { Check, ChevronsUpDown, Dumbbell, LoaderCircle, PlusCircle } from "lucide-react"
-import { toast } from "sonner"
+import {
+  Check,
+  ChevronsUpDown,
+  Dumbbell,
+  LoaderCircle,
+  PlusCircle,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { startTransition, useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 
-import { updateDefaultGymAction } from "@/app/dashboard/actions"
-import { initialDefaultGymActionState } from "@/app/dashboard/default-gym-action-state"
+import { updateDefaultGymAction } from "@/app/dashboard/actions";
+import { initialDefaultGymActionState } from "@/app/dashboard/default-gym-action-state";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,21 +21,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import {
-  type DashboardGym,
-} from "@/lib/dashboard"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/sidebar";
+import type { DashboardGym } from "@/lib/dashboard";
+import { cn } from "@/lib/utils";
 
 interface GymSwitcherProps {
-  activeGym: DashboardGym | null
-  gyms: DashboardGym[]
-  hasSavedDefaultGym: boolean
+  activeGym: DashboardGym | null;
+  gyms: DashboardGym[];
+  hasSavedDefaultGym: boolean;
 }
 
 export function GymSwitcher({
@@ -37,35 +41,40 @@ export function GymSwitcher({
   gyms,
   hasSavedDefaultGym,
 }: GymSwitcherProps) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const routePath = pathname.startsWith("/dashboard/gyms/new") ? "/dashboard" : pathname
-  const [defaultGymState, defaultGymFormAction, defaultGymPending] = useActionState(
-    updateDefaultGymAction,
-    initialDefaultGymActionState
-  )
-  const lastHandledSubmissionIdRef = useRef<string | null>(null)
+  const pathname = usePathname();
+  const router = useRouter();
+  const routePath = pathname.startsWith("/dashboard/gyms/new")
+    ? "/dashboard"
+    : pathname;
+  const [defaultGymState, defaultGymFormAction, defaultGymPending] =
+    useActionState(updateDefaultGymAction, initialDefaultGymActionState);
+  const lastHandledSubmissionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!defaultGymState.message || !defaultGymState.submissionId) {
-      return
+      return;
     }
 
     if (lastHandledSubmissionIdRef.current === defaultGymState.submissionId) {
-      return
+      return;
     }
 
-    lastHandledSubmissionIdRef.current = defaultGymState.submissionId
+    lastHandledSubmissionIdRef.current = defaultGymState.submissionId;
 
     if (defaultGymState.status === "error") {
-      toast.error(defaultGymState.message)
-      return
+      toast.error(defaultGymState.message);
+      return;
     }
 
     startTransition(() => {
-      router.refresh()
-    })
-  }, [defaultGymState.message, defaultGymState.status, defaultGymState.submissionId, router])
+      router.refresh();
+    });
+  }, [
+    defaultGymState.message,
+    defaultGymState.status,
+    defaultGymState.submissionId,
+    router,
+  ]);
 
   return (
     <SidebarMenu>
@@ -112,12 +121,16 @@ export function GymSwitcher({
 
             {gyms.length > 0 ? (
               gyms.map((gym) => {
-                const isActive = activeGym?.id === gym.id
+                const isActive = activeGym?.id === gym.id;
 
                 return (
                   <DropdownMenuItem asChild key={gym.id}>
                     <form action={defaultGymFormAction} className="w-full">
-                      <input name="organizationId" type="hidden" value={gym.id} />
+                      <input
+                        name="organizationId"
+                        type="hidden"
+                        value={gym.id}
+                      />
                       <button
                         className="flex w-full items-center gap-3"
                         disabled={defaultGymPending && isActive}
@@ -127,7 +140,7 @@ export function GymSwitcher({
                           className={cn(
                             "surface-control flex size-9 items-center justify-center rounded-[1rem]",
                             isActive &&
-                              "border-primary/25 bg-primary/10 text-primary hover:bg-primary/10"
+                              "border-primary/25 bg-primary/10 text-primary hover:bg-primary/10",
                           )}
                         >
                           {defaultGymPending && isActive ? (
@@ -140,7 +153,9 @@ export function GymSwitcher({
                         </div>
 
                         <div className="min-w-0 flex-1 text-left">
-                          <p className="truncate font-medium text-foreground">{gym.name}</p>
+                          <p className="truncate font-medium text-foreground">
+                            {gym.name}
+                          </p>
                           <p className="truncate text-xs text-muted-foreground">
                             {isActive
                               ? hasSavedDefaultGym
@@ -152,7 +167,7 @@ export function GymSwitcher({
                       </button>
                     </form>
                   </DropdownMenuItem>
-                )
+                );
               })
             ) : (
               <DropdownMenuItem disabled>No gyms yet</DropdownMenuItem>
@@ -170,5 +185,5 @@ export function GymSwitcher({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

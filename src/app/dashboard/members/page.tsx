@@ -1,41 +1,41 @@
-import Link from "next/link"
-import { redirect } from "next/navigation"
-import { ArrowRight, Plus } from "lucide-react"
+import { ArrowRight, Plus } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { columns } from "@/app/dashboard/members/columns"
-import { DataTable } from "@/app/dashboard/members/data-table"
-import { Button } from "@/components/ui/button"
+import { columns } from "@/app/dashboard/members/columns";
+import { DataTable } from "@/app/dashboard/members/data-table";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   parseDashboardGyms,
   parseDashboardProfile,
   resolveActiveGym,
-} from "@/lib/dashboard"
-import { parseMemberDirectoryRows } from "@/lib/members"
-import { createClient } from "@/lib/supabase/server"
+} from "@/lib/dashboard";
+import { parseMemberDirectoryRows } from "@/lib/members";
+import { createClient } from "@/lib/supabase/server";
 
 function getMembersTableErrorMessage(message: string) {
   if (message.includes("member_organizations") || message.includes("members")) {
-    return "This Supabase project is missing the members directory tables. Apply the latest migrations in `supabase/migrations/` and reload the page."
+    return "This Supabase project is missing the members directory tables. Apply the latest migrations in `supabase/migrations/` and reload the page.";
   }
 
-  return "The members directory could not be loaded for this gym."
+  return "The members directory could not be loaded for this gym.";
 }
 
 export default async function MembersPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth?redirectTo=/dashboard/members")
+    redirect("/auth?redirectTo=/dashboard/members");
   }
 
   const [{ data: profileRow }, { data: gymRows }] = await Promise.all([
@@ -44,28 +44,32 @@ export default async function MembersPage() {
       .select("email, full_name, avatar_url, default_organization_id")
       .eq("id", user.id)
       .maybeSingle(),
-    supabase.from("organizations").select("id, name, slug").is("archived_at", null).order("name"),
-  ])
+    supabase
+      .from("organizations")
+      .select("id, name, slug")
+      .is("archived_at", null)
+      .order("name"),
+  ]);
 
-  const gyms = parseDashboardGyms(gymRows)
-  const profile = parseDashboardProfile(profileRow, user.email ?? null)
-  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId)
-  let membersError: string | null = null
-  let memberRows = [] as ReturnType<typeof parseMemberDirectoryRows>
+  const gyms = parseDashboardGyms(gymRows);
+  const profile = parseDashboardProfile(profileRow, user.email ?? null);
+  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId);
+  let membersError: string | null = null;
+  let memberRows = [] as ReturnType<typeof parseMemberDirectoryRows>;
 
   if (activeGym) {
     const { data, error } = await supabase
       .from("member_organizations")
       .select(
-        "id, organization_id, status, membership_plan, joined_at, last_visit_at, outstanding_balance_cents, member:members!member_organizations_member_id_fkey(id, full_name, email, phone)"
+        "id, organization_id, status, membership_plan, joined_at, last_visit_at, outstanding_balance_cents, member:members!member_organizations_member_id_fkey(id, full_name, email, phone)",
       )
       .eq("organization_id", activeGym.id)
-      .order("joined_at", { ascending: false })
+      .order("joined_at", { ascending: false });
 
     if (error) {
-      membersError = getMembersTableErrorMessage(error.message)
+      membersError = getMembersTableErrorMessage(error.message);
     } else {
-      memberRows = parseMemberDirectoryRows(data)
+      memberRows = parseMemberDirectoryRows(data);
     }
   }
 
@@ -73,19 +77,21 @@ export default async function MembersPage() {
     new Set(
       memberRows
         .map((row) => row.membershipPlan)
-        .filter((value): value is string => Boolean(value))
-    )
-  ).sort((left, right) => left.localeCompare(right))
+        .filter((value): value is string => Boolean(value)),
+    ),
+  ).sort((left, right) => left.localeCompare(right));
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
       {!activeGym ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Create the first gym workspace</CardTitle>
+            <CardTitle className="text-2xl">
+              Create the first gym workspace
+            </CardTitle>
             <CardDescription className="leading-7">
-              Members are always loaded within a gym context. Add a gym first, then this
-              page can anchor the directory to that workspace.
+              Members are always loaded within a gym context. Add a gym first,
+              then this page can anchor the directory to that workspace.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -100,8 +106,12 @@ export default async function MembersPage() {
       ) : membersError ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Members migration required</CardTitle>
-            <CardDescription className="leading-7">{membersError}</CardDescription>
+            <CardTitle className="text-2xl">
+              Members migration required
+            </CardTitle>
+            <CardDescription className="leading-7">
+              {membersError}
+            </CardDescription>
           </CardHeader>
         </Card>
       ) : (
@@ -114,7 +124,10 @@ export default async function MembersPage() {
                 sorting, and pagination.
               </CardDescription>
             </div>
-            <Button asChild className="self-start sm:absolute sm:top-6 sm:right-6">
+            <Button
+              asChild
+              className="self-start sm:absolute sm:top-6 sm:right-6"
+            >
               <Link href="/dashboard/members/new">
                 <Plus className="size-4" />
                 Add Member
@@ -142,5 +155,5 @@ export default async function MembersPage() {
         </Card>
       )}
     </div>
-  )
+  );
 }

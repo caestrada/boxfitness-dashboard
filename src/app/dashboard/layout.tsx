@@ -1,46 +1,46 @@
-import Link from "next/link"
-import type { ReactNode } from "react"
-import { redirect } from "next/navigation"
-import { Building2 } from "lucide-react"
+import { Building2 } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
 
-import { AppSidebar } from "@/components/dashboard/app-sidebar"
-import { DashboardShellHeader } from "@/components/dashboard/dashboard-shell-header"
-import { NavUser } from "@/components/dashboard/nav-user"
-import { SetupPanel } from "@/components/setup/setup-panel"
-import { Button } from "@/components/ui/button"
+import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { DashboardShellHeader } from "@/components/dashboard/dashboard-shell-header";
+import { NavUser } from "@/components/dashboard/nav-user";
+import { SetupPanel } from "@/components/setup/setup-panel";
+import { Button } from "@/components/ui/button";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { hasSupabaseEnv } from "@/lib/env"
+} from "@/components/ui/sidebar";
 import {
   parseDashboardGyms,
   parseDashboardProfile,
   resolveActiveGym,
-} from "@/lib/dashboard"
-import { createClient } from "@/lib/supabase/server"
+} from "@/lib/dashboard";
+import { hasSupabaseEnv } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardLayout({
   children,
 }: Readonly<{
-  children: ReactNode
+  children: ReactNode;
 }>) {
   if (!hasSupabaseEnv()) {
     return (
       <main className="mx-auto flex min-h-screen max-w-5xl items-center px-6 py-16 md:px-10">
         <SetupPanel />
       </main>
-    )
+    );
   }
 
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth?redirectTo=/dashboard")
+    redirect("/auth?redirectTo=/dashboard");
   }
 
   const [profileResult, gymsResult] = await Promise.all([
@@ -49,12 +49,16 @@ export default async function DashboardLayout({
       .select("email, full_name, avatar_url, default_organization_id")
       .eq("id", user.id)
       .maybeSingle(),
-    supabase.from("organizations").select("id, name, slug").is("archived_at", null).order("name"),
-  ])
+    supabase
+      .from("organizations")
+      .select("id, name, slug")
+      .is("archived_at", null)
+      .order("name"),
+  ]);
 
-  const profile = parseDashboardProfile(profileResult.data, user.email ?? null)
-  const gyms = parseDashboardGyms(gymsResult.data)
-  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId)
+  const profile = parseDashboardProfile(profileResult.data, user.email ?? null);
+  const gyms = parseDashboardGyms(gymsResult.data);
+  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId);
 
   return (
     <SidebarProvider defaultOpen>
@@ -106,5 +110,5 @@ export default async function DashboardLayout({
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

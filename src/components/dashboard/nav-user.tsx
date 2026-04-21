@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { LogOut } from "lucide-react"
+import { LogOut } from "lucide-react";
+import Link from "next/link";
 
-import { signOutAction } from "@/app/auth/actions"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { signOutAction } from "@/app/auth/actions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,20 +12,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
+  type DashboardUserProfile,
   getInitials,
   getUserDisplayName,
-  type DashboardUserProfile,
-} from "@/lib/dashboard"
+} from "@/lib/dashboard";
 
 interface NavUserProps {
-  user: DashboardUserProfile
+  user: DashboardUserProfile;
 }
 
 export function NavUser({ user }: NavUserProps) {
-  const displayName = getUserDisplayName(user)
-  const initials = getInitials(displayName)
+  const displayName = getUserDisplayName(user);
+  const initials = getInitials(displayName);
 
   return (
     <DropdownMenu>
@@ -52,7 +52,9 @@ export function NavUser({ user }: NavUserProps) {
 
       <DropdownMenuContent align="end" className="w-72" sideOffset={12}>
         <DropdownMenuLabel className="space-y-1">
-          <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
+          <p className="truncate text-sm font-semibold text-foreground">
+            {displayName}
+          </p>
           <p className="truncate text-xs font-normal text-muted-foreground">
             {user.email ?? "Signed in"}
           </p>
@@ -76,5 +78,5 @@ export function NavUser({ user }: NavUserProps) {
         </form>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

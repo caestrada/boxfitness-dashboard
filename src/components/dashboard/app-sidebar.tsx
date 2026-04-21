@@ -1,7 +1,5 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import {
   BarChart3,
   Building2,
@@ -10,9 +8,11 @@ import {
   LayoutDashboard,
   UserRound,
   Users,
-} from "lucide-react"
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-import { GymSwitcher } from "@/components/dashboard/gym-switcher"
+import { GymSwitcher } from "@/components/dashboard/gym-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -26,15 +26,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/sidebar"
-import {
-  type DashboardGym,
-} from "@/lib/dashboard"
+} from "@/components/ui/sidebar";
+import type { DashboardGym } from "@/lib/dashboard";
 
 interface AppSidebarProps {
-  activeGym: DashboardGym | null
-  gyms: DashboardGym[]
-  hasSavedDefaultGym: boolean
+  activeGym: DashboardGym | null;
+  gyms: DashboardGym[];
+  hasSavedDefaultGym: boolean;
 }
 
 const primaryItems = [
@@ -62,7 +60,7 @@ const primaryItems = [
     icon: UserRound,
     matches: ["/dashboard/profile"],
   },
-] as const
+] as const;
 
 const roadmapItems = [
   {
@@ -77,14 +75,14 @@ const roadmapItems = [
     title: "Analytics",
     icon: BarChart3,
   },
-] as const
+] as const;
 
 export function AppSidebar({
   activeGym,
   gyms,
   hasSavedDefaultGym,
 }: AppSidebarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <Sidebar collapsible="offcanvas" variant="inset">
@@ -103,8 +101,10 @@ export function AppSidebar({
             <SidebarMenu>
               {primaryItems.map((item) => {
                 const isActive = item.matches.some((match) =>
-                  match === "/dashboard" ? pathname === match : pathname.startsWith(match)
-                )
+                  match === "/dashboard"
+                    ? pathname === match
+                    : pathname.startsWith(match),
+                );
 
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -115,7 +115,7 @@ export function AppSidebar({
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )
+                );
               })}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -154,10 +154,10 @@ export function AppSidebar({
               ? `${activeGym.name} is the current default gym for members, billing, and future modules.`
               : activeGym
                 ? `Using ${activeGym.name} as the fallback workspace until a default gym is saved.`
-              : "Set a default gym in Account Settings once multiple workspaces exist."}
+                : "Set a default gym in Account Settings once multiple workspaces exist."}
           </p>
         </div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

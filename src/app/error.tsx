@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw } from "lucide-react";
+import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error)
-  }, [error])
+    console.error(error);
+  }, [error]);
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-16">
@@ -27,7 +27,8 @@ export default function GlobalError({
         </h1>
         <p className="mt-4 leading-7 text-muted-foreground">
           Reset the current route and try again. If the issue persists, inspect
-          the server logs before building more product surface area on top of it.
+          the server logs before building more product surface area on top of
+          it.
         </p>
         <div className="mt-8">
           <Button onClick={reset} size="lg" className="rounded-full px-7">
@@ -37,5 +38,5 @@ export default function GlobalError({
         </div>
       </div>
     </main>
-  )
+  );
 }

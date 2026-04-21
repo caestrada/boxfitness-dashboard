@@ -1,33 +1,33 @@
-import Link from "next/link"
-import { redirect } from "next/navigation"
 import {
   ArrowRight,
   Cloud,
+  type LucideIcon,
   ShieldCheck,
   Sparkles,
-  type LucideIcon,
-} from "lucide-react"
+} from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   parseDashboardGyms,
   parseDashboardProfile,
   resolveActiveGym,
-} from "@/lib/dashboard"
-import { getSupabaseProjectHost } from "@/lib/env"
-import { createClient } from "@/lib/supabase/server"
+} from "@/lib/dashboard";
+import { getSupabaseProjectHost } from "@/lib/env";
+import { createClient } from "@/lib/supabase/server";
 
 const operatingPrinciples: Array<{
-  title: string
-  body: string
-  icon: LucideIcon
+  title: string;
+  body: string;
+  icon: LucideIcon;
 }> = [
   {
     title: "Protected by default",
@@ -44,16 +44,16 @@ const operatingPrinciples: Array<{
     body: "Use this shell to decide which workflows deserve first-class ownership instead of copying every legacy screen over unchanged.",
     icon: Sparkles,
   },
-]
+];
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth?redirectTo=/dashboard")
+    redirect("/auth?redirectTo=/dashboard");
   }
 
   const [{ data: profileRow }, { data: gymRows }] = await Promise.all([
@@ -62,14 +62,18 @@ export default async function DashboardPage() {
       .select("email, full_name, avatar_url, default_organization_id")
       .eq("id", user.id)
       .maybeSingle(),
-    supabase.from("organizations").select("id, name, slug").is("archived_at", null).order("name"),
-  ])
+    supabase
+      .from("organizations")
+      .select("id, name, slug")
+      .is("archived_at", null)
+      .order("name"),
+  ]);
 
-  const gyms = parseDashboardGyms(gymRows)
-  const profile = parseDashboardProfile(profileRow, user.email ?? null)
-  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId)
-  const hasSavedDefaultGym = Boolean(profile.defaultOrganizationId)
-  const projectHost = getSupabaseProjectHost()
+  const gyms = parseDashboardGyms(gymRows);
+  const profile = parseDashboardProfile(profileRow, user.email ?? null);
+  const activeGym = resolveActiveGym(gyms, profile.defaultOrganizationId);
+  const hasSavedDefaultGym = Boolean(profile.defaultOrganizationId);
+  const projectHost = getSupabaseProjectHost();
 
   const workspaceFacts = [
     {
@@ -84,19 +88,21 @@ export default async function DashboardPage() {
     {
       label: "Gym locations",
       value: `${gyms.length}`,
-      description: gyms.length === 1 ? "1 gym connected" : `${gyms.length} gyms connected`,
+      description:
+        gyms.length === 1 ? "1 gym connected" : `${gyms.length} gyms connected`,
     },
     {
       label: "Protected access",
       value: "SSR auth",
-      description: "The shell stays server-protected while redesign work continues.",
+      description:
+        "The shell stays server-protected while redesign work continues.",
     },
     {
       label: "Cloud target",
       value: projectHost ?? "Supabase pending",
       description: "Fresh cloud project, not the deprecated dashboard backend.",
     },
-  ] as const
+  ] as const;
 
   const moduleRows = [
     {
@@ -111,13 +117,13 @@ export default async function DashboardPage() {
       title: "Billing + reporting",
       status: "Queued",
     },
-  ] as const
+  ] as const;
 
   const rebuildQueue = [
     "Model members and membership states per gym before lifting legacy screens over.",
     "Design class scheduling against the organization boundary instead of the old route map.",
     "Treat billing and analytics as separate modules so both can evolve against clean data contracts.",
-  ] as const
+  ] as const;
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6">
@@ -246,8 +252,9 @@ export default async function DashboardPage() {
           <CardHeader>
             <CardTitle className="text-2xl">Recommended next slices</CardTitle>
             <CardDescription className="leading-7">
-              The shell is stable enough to start rebuilding the workflows that matter
-              most, but still small enough to keep the boundary decisions disciplined.
+              The shell is stable enough to start rebuilding the workflows that
+              matter most, but still small enough to keep the boundary decisions
+              disciplined.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -256,7 +263,9 @@ export default async function DashboardPage() {
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-mono text-sm text-primary">
                   0{index + 1}
                 </div>
-                <p className="text-sm leading-7 text-muted-foreground">{item}</p>
+                <p className="text-sm leading-7 text-muted-foreground">
+                  {item}
+                </p>
               </div>
             ))}
           </CardContent>
@@ -266,8 +275,8 @@ export default async function DashboardPage() {
           <CardHeader>
             <CardTitle className="text-2xl">Operating principles</CardTitle>
             <CardDescription className="leading-7">
-              The visual system changed, but the product direction did not: clean
-              boundaries first, legacy copy-paste never by default.
+              The visual system changed, but the product direction did not:
+              clean boundaries first, legacy copy-paste never by default.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -277,8 +286,12 @@ export default async function DashboardPage() {
                   <Icon className="size-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{title}</p>
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {title}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    {body}
+                  </p>
                 </div>
               </div>
             ))}
@@ -286,5 +299,5 @@ export default async function DashboardPage() {
         </Card>
       </section>
     </div>
-  )
+  );
 }
