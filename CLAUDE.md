@@ -35,6 +35,10 @@ npm run lint
 npm run build
 ```
 
+## Claude Code Permissions
+
+`.claude/settings.local.json` is committed as the shared Claude Code allowlist for this repo. It pre-approves safe, repeatable commands (`npm run …`, `npx tsc …`, `gh issue|pr|api …`, `jq`, `awk`, `python3`, Supabase read commands, and git inspection commands) so Claude Code does not prompt on every call. Add new entries there — not in personal overrides — when you find yourself approving the same safe command repeatedly.
+
 ## Stack Reference
 
 - Next.js 16 (App Router) + React 19 + TypeScript 5, with React Compiler enabled (`reactCompiler: true` in `next.config.ts`)
