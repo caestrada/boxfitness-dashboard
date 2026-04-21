@@ -43,3 +43,6 @@ next-env.d.ts
 
 # supabase local temp state
 /supabase/.temp/
+
+# claude code — commit the shared allowlist (overrides any global ignore)
+!.claude/settings.local.json
