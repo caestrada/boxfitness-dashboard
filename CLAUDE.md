@@ -27,12 +27,10 @@ There is no test runner wired up in this repo yet.
 
 ## Validation Before Handoff
 
-Run all three and report any failures:
+Run `npm run verify` (lint + typecheck + build) and report any failures:
 
 ```bash
-npx tsc --noEmit
-npm run lint
-npm run build
+npm run verify
 ```
 
 ## Claude Code Permissions
